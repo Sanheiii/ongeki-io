@@ -84,6 +84,7 @@ namespace MU3Input
 
         public bool Check(ControllerPart part1, params ControllerPart[] parts)
         {
+            return true;
             if (parts.Length == 0) return true;
             ControllerPart part2 = parts.Aggregate((p1, p2) => p1 | p2);
             return (part1 & part2) == ControllerPart.None;

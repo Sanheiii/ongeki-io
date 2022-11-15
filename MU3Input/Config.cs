@@ -5,6 +5,9 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Windows.Forms;
+
+using static MU3Input.KeyboardIO;
 
 namespace MU3Input
 {
@@ -28,9 +31,18 @@ namespace MU3Input
                 {
                     new IOConfig()
                     {
-                        Type = IOType.Udp,
-                        Param = 4354,
+                        Type = IOType.Hid,
                         Part = ControllerPart.All
+                    },
+                    new IOConfig()
+                    {
+                        Type = IOType.Keyboard,
+                        Param = JToken.FromObject(new KeyboardIOConfig
+                        {
+                            Test=Keys.D1,
+                            Service=Keys.D2
+                        }),
+                        Part= ControllerPart.None
                     }
                 };
                 Instance.Save(configPath);

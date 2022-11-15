@@ -36,11 +36,11 @@ namespace MU3Input
         private OutputData GetData()
         {
             IntPtr handle = User32.GetForegroundWindow();
-            User32.GetWindowText(handle, sb, 16);
+            User32.GetWindowText(handle, sb, 64);
             string windowText = sb.ToString();
-            if (windowText != "Otoge" && windowText != "Ongeki IO Debug")
+            if (windowText != "Otoge" && windowText != "Ongeki IO Debug" && windowText != "NAGEKI IO & 读卡器")
             {
-                return new OutputData() { Buttons=new byte[10] };
+                return new OutputData() { Buttons = new byte[10] };
             }
 
             byte[] buttons = new byte[] {

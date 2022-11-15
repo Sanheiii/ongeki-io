@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -20,13 +21,15 @@ namespace Test
             AimiIO.Init();
             while (true)
             {
-                Task.Delay(1).Wait();
+                Task.Delay(10).Wait();
                 Mu3IO.Poll();
                 Mu3IO.GetGameButtons(out byte left, out byte right);
                 AimiIO.GetFelicaId(0, &id);
                 AimiIO.GetFelicaPm(0, &id);
                 AimiIO.GetFelicaSystemCode(0, &code);
                 AimiIO.GetAimeId(0, (byte*)aimeid,10);
+                Mu3IO.GetOpButtons(out byte btn);
+                Debug.WriteLine(btn);
             }
             Console.ReadKey();
         }
