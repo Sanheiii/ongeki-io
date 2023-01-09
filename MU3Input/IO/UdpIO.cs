@@ -23,7 +23,7 @@ namespace MU3Input
 
         public UdpIO(int port)
         {
-            data = new OutputData() { Buttons = new byte[10] };
+            data = new OutputData() { Buttons = new byte[10], Aime = new Aime() { Data = new byte[18] } };
             client = new UdpClient(port);
             timer.Elapsed += Timer_Elapsed;
             new Thread(PollThread).Start();
@@ -79,13 +79,13 @@ namespace MU3Input
                     {
                         aimeId = Utils.ReadOrCreateAimeTxt();
                     }
-                    data.Aime.Mifare = Mifare.Create(aimeId);
+                    data.Aime.ID = aimeId;
                 }
                 else if (data.Aime.Scan == 2)
                 {
-                    data.Aime.Felica.IDm = BitConverter.ToUInt64(buffer, 2);
-                    data.Aime.Felica.PMm = BitConverter.ToUInt64(buffer, 10);
-                    data.Aime.Felica.SystemCode = BitConverter.ToUInt16(buffer, 18);
+                    data.Aime.IDm = BitConverter.ToUInt64(buffer, 2);
+                    data.Aime.PMm = BitConverter.ToUInt64(buffer, 10);
+                    data.Aime.SystemCode = BitConverter.ToUInt16(buffer, 18);
                 }
             }
             else if (buffer[0] == (byte)MessageType.Test && buffer.Length == 2)
@@ -131,6 +131,6 @@ namespace MU3Input
                 client?.SendAsync(new byte[] { (byte)MessageType.SetLed }.Concat(BitConverter.GetBytes(data)).ToArray(), 5, savedEP);
             }
         }
-        
+
     }
 }

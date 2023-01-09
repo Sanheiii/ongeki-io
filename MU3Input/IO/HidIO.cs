@@ -21,7 +21,7 @@ namespace MU3Input
 
         public HidIO()
         {
-            data = new OutputData() { Buttons = new byte[10] };
+            data = new OutputData() { Buttons = new byte[10], Aime = new Aime() { Data = new byte[18] } };
             Reconnect();
             new Thread(PollThread).Start();
         }
@@ -64,11 +64,11 @@ namespace MU3Input
                 temp.Aime.Scan = _inBuffer[13];
                 if (temp.Aime.Scan == 1)
                 {
-                    temp.Aime.Mifare = Mifare.Create(new ArraySegment<byte>(_inBuffer, 14, 10).ToArray());
+                    byte[] mifareID = new ArraySegment<byte>(_inBuffer, 14, 10).ToArray();
                     bool flag = true;
                     for (int i = 0; i < 10; i++)
                     {
-                        if (temp.Aime.Mifare.ID[i] != 255)
+                        if (mifareID[i] != 255)
                         {
                             flag = false;
                             break;
@@ -76,15 +76,15 @@ namespace MU3Input
                     }
                     if (flag)
                     {
-                        byte[] bytes = Utils.ReadOrCreateAimeTxt();
-                        temp.Aime.Mifare = Mifare.Create(bytes);
+                        mifareID = Utils.ReadOrCreateAimeTxt();
                     }
+                    temp.Aime.ID = mifareID;
                 }
-                if(temp.Aime.Scan == 2)
+                if (temp.Aime.Scan == 2)
                 {
-                    temp.Aime.Felica.IDm = BitConverter.ToUInt64(_inBuffer, 14);
-                    temp.Aime.Felica.PMm = BitConverter.ToUInt64(_inBuffer, 22);
-                    temp.Aime.Felica.SystemCode = BitConverter.ToUInt16(_inBuffer, 30);
+                    temp.Aime.IDm = BitConverter.ToUInt64(_inBuffer, 14);
+                    temp.Aime.PMm = BitConverter.ToUInt64(_inBuffer, 22);
+                    temp.Aime.SystemCode = BitConverter.ToUInt16(_inBuffer, 30);
                 }
                 data = temp;
             }

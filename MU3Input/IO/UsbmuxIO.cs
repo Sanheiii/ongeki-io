@@ -37,7 +37,7 @@ namespace MU3Input
         {
             this.remotePort = remotePort;
             deviceEventCallBack = new iDeviceEventCallBack(DeviceEventCallback);
-            data = new OutputData() { Buttons = new byte[10] };
+            data = new OutputData() { Buttons = new byte[10], Aime = new Aime() { Data = new byte[18] } };
             iDevice.idevice_event_subscribe(deviceEventCallBack, IntPtr.Zero);
             new Thread(PollThread).Start();
         }
@@ -115,13 +115,13 @@ namespace MU3Input
                     {
                         aimeId = Utils.ReadOrCreateAimeTxt();
                     }
-                    data.Aime.Mifare = Mifare.Create(aimeId);
+                    data.Aime.ID = aimeId;
                 }
                 else if (data.Aime.Scan == 2 && !iDevice.idevice_connection_receive(connection, _inBuffer, 18, ref len).IsError())
                 {
-                    data.Aime.Felica.IDm = BitConverter.ToUInt64(_inBuffer, 0);
-                    data.Aime.Felica.PMm = BitConverter.ToUInt64(_inBuffer, 8);
-                    data.Aime.Felica.SystemCode = BitConverter.ToUInt16(_inBuffer, 16);
+                    data.Aime.IDm = BitConverter.ToUInt64(_inBuffer, 0);
+                    data.Aime.PMm = BitConverter.ToUInt64(_inBuffer, 8);
+                    data.Aime.SystemCode = BitConverter.ToUInt16(_inBuffer, 16);
                 }
             }
             else if (type == MessageType.Test && !iDevice.idevice_connection_receive(connection, _inBuffer, 1, ref len).IsError())

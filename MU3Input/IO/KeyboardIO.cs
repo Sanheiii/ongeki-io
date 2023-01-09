@@ -40,7 +40,7 @@ namespace MU3Input
             string windowText = sb.ToString();
             if (windowText != "Otoge" && windowText != "Ongeki IO Debug" && windowText != "NAGEKI IO & 读卡器")
             {
-                return new OutputData() { Buttons = new byte[10] };
+                return new OutputData() { Buttons = new byte[10], Aime = new Aime() { Data = new byte[18] } };
             }
 
             byte[] buttons = new byte[] {
@@ -59,12 +59,13 @@ namespace MU3Input
             OptButtons optButtons = (OptButtons)(Pressed(config.Test) << 0 | Pressed(config.Service) << 1);
             Aime aime = new Aime()
             {
-                Scan = Pressed(config.Scan)
+                Scan = Pressed(config.Scan),
+                Data = new byte[18]
             };
             if (aime.Scan == 1)
             {
                 byte[] bytes = Utils.ReadOrCreateAimeTxt();
-                aime.Mifare = Mifare.Create(bytes);
+                aime.ID = bytes;
             }
             return new OutputData
             {

@@ -91,11 +91,11 @@ namespace MU3Input
                     }
                     else if (_io.Aime.Scan == 1)
                     {
-                        label4.Text = _io.Aime.Mifare.ToString();
+                        label4.Text = BitConverter.ToString(_io.Aime.ID).Replace("-", "");
                     }
                     else if (_io.Aime.Scan == 2)
                     {
-                        label4.Text = "0x" + BitConverter.ToUInt64(BitConverter.GetBytes(_io.Aime.Felica.IDm).Reverse().ToArray(), 0).ToString("X16");
+                        label4.Text = "0x" + BitConverter.ToUInt64(BitConverter.GetBytes(_io.Aime.IDm).Reverse().ToArray(), 0).ToString("X16");
                     }
 
                 }));

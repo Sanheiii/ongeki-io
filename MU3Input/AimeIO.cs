@@ -37,7 +37,7 @@ namespace MU3Input
             }
             else
             {
-                *id = Mu3IO.IO.Aime.Felica.IDm;
+                *id = Mu3IO.IO.Aime.IDm;
                 return 0;
             }
         }
@@ -51,7 +51,7 @@ namespace MU3Input
             }
             else
             {
-                *pm = Mu3IO.IO.Aime.Felica.PMm;
+                *pm = Mu3IO.IO.Aime.PMm;
                 return 0;
             }
         }
@@ -65,7 +65,7 @@ namespace MU3Input
             }
             else
             {
-                *systemCode = Mu3IO.IO.Aime.Felica.SystemCode;
+                *systemCode = Mu3IO.IO.Aime.SystemCode;
                 return 0;
             }
         }
@@ -77,7 +77,7 @@ namespace MU3Input
             Aime aime = Mu3IO.IO.Aime;
             for(int i = 0; i < 10; i++)
             {
-                id[i]=aime.Mifare.ID[i];
+                id[i]=aime.ID[i];
             }
 
             return 0;

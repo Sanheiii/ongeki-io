@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Runtime.InteropServices;
 
 namespace MU3Input
@@ -113,45 +114,36 @@ namespace MU3Input
         Test = 0b01,
         Service = 0b10
     }
-    [StructLayout(LayoutKind.Explicit, Pack = 1, Size = 19)]
-    public unsafe struct Aime
+
+    [StructLayout(LayoutKind.Sequential, Pack = 1, Size = 19)]
+    public struct Aime
     {
-        [FieldOffset(0)]
         [MarshalAs(UnmanagedType.U1)]
         public byte Scan;
 
-        [FieldOffset(1)]
-        public Felica Felica;
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 18, ArraySubType = UnmanagedType.U1)]
+        public byte[] Data;
 
-        [FieldOffset(1)]
-        public Mifare Mifare;
-    }
-    [StructLayout(LayoutKind.Sequential, Pack = 1, Size = 18)]
-    public unsafe struct Felica
-    {
-        public ulong IDm;
-        public ulong PMm;
-        public ushort SystemCode;
-    }
-    [StructLayout(LayoutKind.Sequential, Pack = 1, Size = 10)]
-    public unsafe struct Mifare
-    {
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 10)]
-        public fixed byte ID[10];
-
-        public static Mifare Create(byte[] bytes)
+        public byte[] ID
         {
-            Mifare mifare = new Mifare();
-            Marshal.Copy(bytes, 0, (IntPtr)mifare.ID, 10);
-            return mifare;
+            get => new ArraySegment<byte>(Data, 0, 10).ToArray();
+            set => value.CopyTo(Data, 0);
         }
 
-        public override string ToString()
+        public ulong IDm
         {
-            Mifare mifare = this;
-            byte[] bytes = new byte[10];
-            Marshal.Copy((IntPtr)mifare.ID, bytes, 0, 10);
-            return BitConverter.ToString(bytes).Replace("-", "");
+            get => BitConverter.ToUInt64(Data, 0);
+            set => BitConverter.GetBytes(value).CopyTo(Data, 0);
+        }
+        public ulong PMm
+        {
+            get => BitConverter.ToUInt64(Data, 8);
+            set => BitConverter.GetBytes(value).CopyTo(Data, 8);
+        }
+        public ushort SystemCode
+        {
+            get => BitConverter.ToUInt16(Data, 16);
+            set => BitConverter.GetBytes(value).CopyTo(Data, 16);
         }
     }
     enum MessageType : byte
