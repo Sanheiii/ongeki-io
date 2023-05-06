@@ -7,7 +7,7 @@ namespace MU3Input
 {
     public partial class IOTest : Form
     {
-        private MixedIO _io;
+        private IO _io;
 
         private CheckBox[] _left;
         private CheckBox[] _right;
@@ -15,7 +15,7 @@ namespace MU3Input
         //private object _data;
         //private int ncoins;
 
-        public IOTest(MixedIO io)
+        public IOTest(IO io)
         {
             InitializeComponent();
 
@@ -55,7 +55,7 @@ namespace MU3Input
             {
                 BeginInvoke(new Action(() =>
                 {
-                    bool hidIsConnected = _io.Items.Where(io => io.Key.GetType() == typeof(HidIO)).Any(io => io.Key.IsConnected);
+                    bool hidIsConnected = _io.IsConnected;
                     lblStatus.Text = hidIsConnected ? "Nageki 已连接" : "Nageki 未连接";
 
                     if (!_io.IsConnected) return;
