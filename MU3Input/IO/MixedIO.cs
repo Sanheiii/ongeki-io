@@ -14,7 +14,10 @@ namespace MU3Input
         public override bool IsConnected => true;
         public override void Reconnect()
         {
-
+            foreach (var item in Items)
+            {
+                item.Key.Reconnect();
+            }
         }
         public Dictionary<IO, ControllerPart> Items { get; }
         public override OutputData Data
@@ -27,13 +30,23 @@ namespace MU3Input
                     var io = Items.FirstOrDefault(item => item.Value.HasFlag((ControllerPart)(1 << i))).Key;
                     buttons[i] = io == null ? (byte)0 : io.Data.Buttons[i];
                 }
-                short lever = Items.First(item => item.Value.HasFlag(ControllerPart.Lever)).Key.Data.Lever;
-                IO aimeIO = Items.First(item => item.Value.HasFlag(ControllerPart.Aime)).Key;
+                short lever = default;
+                IO aimeIO = null;
+
+                foreach (var item in Items)
+                {
+                    if (item.Value.HasFlag(ControllerPart.Lever))
+                        lever = item.Key.Data.Lever;
+                    if (item.Value.HasFlag(ControllerPart.Aime))
+                        aimeIO = item.Key;
+                    if (!item.Key.IsConnected)
+                        item.Key.Reconnect();
+                }
                 return new OutputData
                 {
                     Buttons = buttons,
                     Lever = lever,
-                    Aime = aimeIO.Aime,
+                    Aime = aimeIO?.Aime ?? default,
                     OptButtons = Items.Select(item => item.Key.Data.OptButtons).Aggregate((item1, item2) => item1 | item2),
                 };
             }

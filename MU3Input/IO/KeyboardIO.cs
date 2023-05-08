@@ -56,7 +56,7 @@ namespace MU3Input
                 Pressed(config.RMenu),
             };
             short lever = 0;
-            OptButtons optButtons = (OptButtons)(Pressed(config.Test) << 0 | Pressed(config.Service) << 1| Pressed(config.Coin));
+            OptButtons optButtons = (OptButtons)(Pressed(config.Test) << 0 | Pressed(config.Service) << 1 | Pressed(config.Coin) << 2);
             Aime aime = new Aime()
             {
                 Scan = Pressed(config.Scan),
