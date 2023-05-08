@@ -121,13 +121,13 @@ namespace MU3Input
             }
             else if (type == MessageType.Test && networkStream.Read(_inBuffer, 0, 1) > 0)
             {
-                if (_inBuffer[0] == 0) data.OptButtons ^= OptButtons.Test;
+                if (_inBuffer[1] == 0) data.OptButtons &= ~OptButtons.Test;
                 else data.OptButtons |= OptButtons.Test;
                 Debug.WriteLine(Data.OptButtons);
             }
             else if (type == MessageType.Service && networkStream.Read(_inBuffer, 0, 1) > 0)
             {
-                if (_inBuffer[0] == 0) data.OptButtons ^= OptButtons.Service;
+                if (_inBuffer[1] == 0) data.OptButtons &= ~OptButtons.Service;
                 else data.OptButtons |= OptButtons.Service;
                 Debug.WriteLine(Data.OptButtons);
             }

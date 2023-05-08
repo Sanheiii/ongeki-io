@@ -56,7 +56,7 @@ namespace MU3Input
                 Pressed(config.RMenu),
             };
             short lever = 0;
-            OptButtons optButtons = (OptButtons)(Pressed(config.Test) << 0 | Pressed(config.Service) << 1);
+            OptButtons optButtons = (OptButtons)(Pressed(config.Test) << 0 | Pressed(config.Service) << 1| Pressed(config.Coin));
             Aime aime = new Aime()
             {
                 Scan = Pressed(config.Scan),
@@ -82,19 +82,20 @@ namespace MU3Input
         }
         public class KeyboardIOConfig
         {
-            public Keys L1 { get; set; }
-            public Keys L2 { get; set; }
-            public Keys L3 { get; set; }
-            public Keys LSide { get; set; }
-            public Keys LMenu { get; set; }
-            public Keys R1 { get; set; }
-            public Keys R2 { get; set; }
-            public Keys R3 { get; set; }
-            public Keys RSide { get; set; }
-            public Keys RMenu { get; set; }
-            public Keys Test { get; set; }
-            public Keys Service { get; set; }
-            public Keys Scan { get; set; }
+            public Keys L1 { get; set; } = (Keys)(-1);
+            public Keys L2 { get; set; } = (Keys)(-1);
+            public Keys L3 { get; set; } = (Keys)(-1);
+            public Keys LSide { get; set; } = (Keys)(-1);
+            public Keys LMenu { get; set; } = (Keys)(-1);
+            public Keys R1 { get; set; } = (Keys)(-1);
+            public Keys R2 { get; set; } = (Keys)(-1);
+            public Keys R3 { get; set; } = (Keys)(-1);
+            public Keys RSide { get; set; } = (Keys)(-1);
+            public Keys RMenu { get; set; } = (Keys)(-1);
+            public Keys Test { get; set; } = (Keys)(-1);
+            public Keys Service { get; set; } = (Keys)(-1);
+            public Keys Coin { get; set; } = (Keys)(-1);
+            public Keys Scan { get; set; } = (Keys)(-1);
         }
     }
 }

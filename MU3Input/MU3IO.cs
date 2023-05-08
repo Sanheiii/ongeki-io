@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.IO.MemoryMappedFiles;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
@@ -7,7 +8,11 @@ namespace MU3Input
     public static class Mu3IO
     {
         internal static IO IO;
+        internal static byte[] LedData;
         private static IOTest _test;
+
+        private static MemoryMappedFile mmf;
+        private static MemoryMappedViewAccessor accessor;
 
         static Mu3IO()
         {
@@ -18,6 +23,11 @@ namespace MU3Input
             }
             IO = io;
             _test = new IOTest(io);
+
+            //与mod共享内存以接收LED数据
+            mmf = MemoryMappedFile.CreateOrOpen("mu3_led_data", 66 * 3);
+            accessor = mmf.CreateViewAccessor(0, 66 * 3);
+            LedData = new byte[6];
 
             Task.Run(() => _test.ShowDialog());
         }
@@ -50,6 +60,12 @@ namespace MU3Input
             {
                 IO.Reconnect();
             }
+
+            int leftBase = 0;
+            accessor.ReadArray(leftBase, LedData, 0, 3);
+
+            int rightBase  = 59 * 3;
+            accessor.ReadArray(rightBase, LedData, 3, 3);
 
             _test.UpdateData();
 

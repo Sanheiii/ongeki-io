@@ -110,9 +110,10 @@ namespace MU3Input
     [Flags]
     public enum OptButtons : byte
     {
-        None = 0b00,
-        Test = 0b01,
-        Service = 0b10
+        None = 0b000,
+        Test = 0b001,
+        Service = 0b010,
+        Coin = 0b100
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1, Size = 19)]
