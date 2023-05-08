@@ -40,7 +40,8 @@ namespace MU3Input
                         Param = JToken.FromObject(new KeyboardIOConfig
                         {
                             Test=Keys.D1,
-                            Service=Keys.D2
+                            Service=Keys.D2,
+                            Coin=Keys.D3,
                         }),
                         Part= ControllerPart.None
                     }

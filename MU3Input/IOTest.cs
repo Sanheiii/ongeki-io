@@ -97,10 +97,6 @@ namespace MU3Input
                     {
                         label4.Text = "0x" + BitConverter.ToUInt64(BitConverter.GetBytes(_io.Aime.IDm).Reverse().ToArray(), 0).ToString("X16");
                     }
-
-
-                    lS.BackColor = Color.FromArgb(Mu3IO.LedData[0], Mu3IO.LedData[1], Mu3IO.LedData[2]);
-                    rS.BackColor = Color.FromArgb(Mu3IO.LedData[3], Mu3IO.LedData[4], Mu3IO.LedData[5]);
                 }));
             }
             catch
