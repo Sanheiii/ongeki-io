@@ -33,6 +33,7 @@ namespace MU3Input
 
 
         StringBuilder sb = new StringBuilder();
+        bool coinAvailable = true;
         private OutputData GetData()
         {
             IntPtr handle = User32.GetForegroundWindow();
@@ -56,7 +57,25 @@ namespace MU3Input
                 Pressed(config.RMenu),
             };
             short lever = 0;
-            OptButtons optButtons = (OptButtons)(Pressed(config.Test) << 0 | Pressed(config.Service) << 1 | Pressed(config.Coin) << 2);
+            byte testPressed = Pressed(config.Test);
+            byte servicePressed = Pressed(config.Service);
+            byte coinPressed = Pressed(config.Coin);
+            if (coinPressed > 0)
+            {
+                if (coinAvailable)
+                {
+                    coinAvailable = false;
+                }
+                else
+                {
+                    coinPressed = 0;
+                }
+            }
+            else
+            {
+                coinAvailable = true;
+            }
+            OptButtons optButtons = (OptButtons)(testPressed << 0 | servicePressed << 1 | coinPressed << 2);
             Aime aime = new Aime()
             {
                 Scan = Pressed(config.Scan),
