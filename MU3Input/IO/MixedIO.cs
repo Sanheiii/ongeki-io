@@ -63,12 +63,12 @@ namespace MU3Input
             {
                 case IOType.Hid:
                     return new HidIO();
-                case IOType.Udp:
-                    return new UdpIO(param.Value<int>());
-                case IOType.Tcp:
-                    return new TcpIO(param.Value<int>());
-                case IOType.Usbmux:
-                    return new UsbmuxIO(param.Value<ushort>());
+                //case IOType.Udp:
+                //    return new UdpIO(param.Value<int>());
+                //case IOType.Tcp:
+                //    return new TcpIO(param.Value<int>());
+                //case IOType.Usbmux:
+                //    return new UsbmuxIO(param.Value<ushort>());
                 case IOType.Keyboard:
                     return new KeyboardIO(param.ToObject<KeyboardIOConfig>());
                 default: throw new ArgumentException($"{type}: Unknown IO type");

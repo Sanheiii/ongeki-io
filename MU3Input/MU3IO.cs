@@ -11,8 +11,13 @@ namespace MU3Input
 
         static Mu3IO()
         {
-            IO = new HidIO();
-            _test = new IOTest(IO);
+            var io = new MixedIO();
+            foreach (var ioConfig in Config.Instance.IO)
+            {
+                io.Add(io.CreateIO(ioConfig.Type, ioConfig.Param), ioConfig.Part);
+            }
+            IO = io;
+            _test = new IOTest(io);
 
             Task.Run(() => _test.ShowDialog());
         }
