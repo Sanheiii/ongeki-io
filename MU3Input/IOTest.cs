@@ -97,7 +97,6 @@ namespace MU3Input
                     {
                         label4.Text = "0x" + BitConverter.ToUInt64(BitConverter.GetBytes(_io.Aime.IDm).Reverse().ToArray(), 0).ToString("X16");
                     }
-
                 }));
             }
             catch
