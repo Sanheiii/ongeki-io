@@ -61,7 +61,7 @@ namespace component
             key_status[3] = key_status[3] ^ 1;
             key_status[8] = key_status[8] ^ 1;
 
-            if (key_status[10] && key_status[2])
+            if (key_status[10] && key_status[7])
             {
                 if (switch_enabled)
                 {
