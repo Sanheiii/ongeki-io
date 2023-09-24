@@ -33,5 +33,9 @@ namespace component {
                 }
             }
         }
+
+        void end() {
+            RawHID.end();
+        }
     }
 }
