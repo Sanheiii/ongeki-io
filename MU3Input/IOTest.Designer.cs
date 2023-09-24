@@ -215,8 +215,8 @@ namespace MU3Input
             this.trackBar1.Cursor = System.Windows.Forms.Cursors.Default;
             this.trackBar1.LargeChange = 1;
             this.trackBar1.Location = new System.Drawing.Point(202, 23);
-            this.trackBar1.Maximum = 50000;
-            this.trackBar1.Minimum = -50000;
+            this.trackBar1.Maximum = 32767;
+            this.trackBar1.Minimum = -32768;
             this.trackBar1.Name = "trackBar1";
             this.trackBar1.Size = new System.Drawing.Size(106, 45);
             this.trackBar1.TabIndex = 12;
