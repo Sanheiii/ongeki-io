@@ -1,9 +1,11 @@
 #include "stdinclude.hpp"
 
-void setup() {
+void setup()
+{
     component::manager::start();
 }
 
-void loop() {
+void loop()
+{
     component::manager::update();
 }

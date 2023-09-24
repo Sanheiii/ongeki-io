@@ -13,9 +13,10 @@ namespace component {
                 char buffer[64];
                 struct {
                     uint8_t buttons[10];
-                    uint16_t lever;
+                    int16_t lever;
                     uint8_t scan;
                     aimi_id_t aimi_id;
+                    uint8_t opt_buttons;
                 };
             };
         };
@@ -43,5 +44,6 @@ namespace component {
 
         void start();
         void update();
+        void end();
     }
 }

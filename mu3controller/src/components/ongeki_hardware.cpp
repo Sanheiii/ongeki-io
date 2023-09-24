@@ -2,53 +2,53 @@
 #include <EEPROM.h>
 #include <FastLED.h>
 
-namespace component {
-    namespace ongeki_hardware {
+namespace component
+{
+    namespace ongeki_hardware
+    {
         const int LEVER = PIN_A0;
-        const int LED_PIN = 12;
-        const uint8_t PIN_MAP[10] = {
-            // L: A B C SIDE MENU
-            9, 8, 7, 10, 11,
-            // R: A B C SIDE MENU
-            4, 3, 2, 5, 6,
-        };
+        const int LED_PIN = PIN_A1;
 
         CRGB lightColors[6];
 
-        void start() {
-            // setup pin modes for button
-            for (unsigned char i : PIN_MAP) {
-                pinMode(i, INPUT_PULLUP);
-            }
-
+        void start()
+        {
             // setup led_t
-            FastLED.addLeds<WS2812B, LED_PIN, GRB>(lightColors, 6);
+            FastLED.addLeds<WS2812B, LED_PIN, RGB>(lightColors, 6);
         }
 
-        void read_io(raw_hid::output_data_t *data) {
-            for(auto i = 0; i < 10; i++) {
-                data->buttons[i] = digitalRead(PIN_MAP[i]) == LOW;
+        void read_io(raw_hid::output_data_t *data)
+        {
+            for (auto i = 0; i < 10; i++)
+            {
+                data->buttons[i] = manager::key_status[i];
             }
 
-            data->lever = analogRead(LEVER);
+            int16_t lever = analogRead(LEVER);
+            data->lever = map(lever, 0, 1023, -32768, 32767);
 
-            if(data->buttons[4] && data->buttons[9]) {
-                EEPROM.get(0, data->aimi_id);
-                data->scan = true;
-            } else {
-                memset(&data->aimi_id, 0, 10);
-                data->scan = false;
-            }
+            uint8_t test_pressed = manager::key_status[10] && manager::key_status[0];
+            uint8_t service_pressed = manager::key_status[10] && manager::key_status[1];
+            uint8_t coin_pressed = manager::key_status[11];
+            data->opt_buttons = (test_pressed << 0) | (service_pressed << 1) | (coin_pressed << 2);
         }
 
-        void set_led(raw_hid::led_t &data) {
+        void set_led(raw_hid::led_t &data)
+        {
             FastLED.setBrightness(data.ledBrightness);
 
-            for(int i = 0; i < 3; i++) {
+            for (int i = 0; i < 3; i++)
+            {
                 memcpy(&lightColors[i], &data.ledColors[i], 3);
                 memcpy(&lightColors[i + 3], &data.ledColors[i + 5], 3);
             }
 
+            FastLED.show();
+        }
+
+        void end()
+        {
+            FastLED.clear();
             FastLED.show();
         }
     }
