@@ -17,7 +17,7 @@ namespace component
             KeyboardKeycode::KEY_RIGHT_SHIFT,
             KeyboardKeycode::KEY_BACKSPACE,
             // FN1 FN2
-            KeyboardKeycode::KEY_Q,
+            KeyboardKeycode::KEY_RESERVED,
             KeyboardKeycode::KEY_E,
         };
 

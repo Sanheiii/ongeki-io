@@ -1,4 +1,5 @@
 #include "stdinclude.hpp"
+#include <EEPROM.h>
 
 namespace component
 {
@@ -29,6 +30,7 @@ namespace component
         bool switch_enabled = false;
         void start()
         {
+            keyboard_mode = EEPROM.read(EEPROM_ADDR_KEYBOARD_MODE);
             // setup pin modes for button
             for (unsigned char i : manager::PIN_MAP)
             {
@@ -61,6 +63,14 @@ namespace component
             key_status[3] = key_status[3] ^ 1;
             key_status[8] = key_status[8] ^ 1;
 
+            //重置设置
+            if (key_status[10] && key_status[11])
+            {
+                reset();
+                return;
+            }
+
+            // 切换键盘与ongeki-io模式
             if (key_status[10] && key_status[7])
             {
                 if (switch_enabled)
@@ -104,7 +114,16 @@ namespace component
             if (!switch_enabled)
                 return;
             end();
-            keyboard_mode = !keyboard_mode;
+            EEPROM.put(EEPROM_ADDR_KEYBOARD_MODE, !keyboard_mode);
+            start();
+        }
+
+        void reset()
+        {
+            end();
+            EEPROM.put(EEPROM_ADDR_KEYBOARD_MODE, 0);
+            EEPROM.put(EEPROM_ADDR_LEVER_LIMIT_1, 0);
+            EEPROM.put(EEPROM_ADDR_LEVER_LIMIT_2, 1023);
             start();
         }
     }

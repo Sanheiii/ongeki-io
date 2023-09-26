@@ -1,4 +1,5 @@
 #include "stdinclude.hpp"
+#include "card_reader.hpp"
 #include <EEPROM.h>
 
 namespace component {
@@ -32,6 +33,8 @@ namespace component {
                     }
                 }
             }
+
+            nfc_poll();
         }
 
         void end() {
