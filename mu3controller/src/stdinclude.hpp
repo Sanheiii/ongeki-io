@@ -5,3 +5,4 @@
 #include <HID-Project.h>
 
 #include "components/manager.hpp"
+#include "eeprom_address.h"

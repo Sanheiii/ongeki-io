@@ -8,6 +8,7 @@ namespace component {
         void update();
         void end();
         void switch_mode();
+        void reset();
     }
 }
 
