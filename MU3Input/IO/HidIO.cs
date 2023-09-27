@@ -62,6 +62,7 @@ namespace MU3Input
                 temp.Lever = BitConverter.ToInt16(_inBuffer, 10);
                 temp.OptButtons = (OptButtons)_inBuffer[12];
                 temp.Aime.Scan = _inBuffer[13];
+                temp.Aime.Data = new byte[18];
                 if (temp.Aime.Scan == 1)
                 {
                     byte[] mifareID = new ArraySegment<byte>(_inBuffer, 14, 10).ToArray();
