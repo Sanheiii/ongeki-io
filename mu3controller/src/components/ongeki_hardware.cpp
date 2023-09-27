@@ -66,12 +66,6 @@ namespace component
                 lever = lever_limit_right;
             }
 
-            // 读取按钮状态
-            for (auto i = 0; i < 10; i++)
-            {
-                data->buttons[i] = manager::key_status[i];
-            }
-
             // 摇杆数值映射到int16的范围
             data->lever = map(lever, lever_limit_left, lever_limit_right, -32768, 32767);
 
@@ -80,6 +74,12 @@ namespace component
             uint8_t service_pressed = manager::key_status[10] && manager::key_status[1];
             uint8_t coin_pressed = manager::key_status[11];
             data->opt_buttons = (test_pressed << 0) | (service_pressed << 1) | (coin_pressed << 2);
+        
+            // 读取按钮状态
+            for (auto i = 0; i < 10; i++)
+            {
+                data->buttons[i] = manager::key_status[i] && !manager::key_status[10];
+            }
         }
 
         void set_led(raw_hid::led_t &data)
