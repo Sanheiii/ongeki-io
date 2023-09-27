@@ -17,6 +17,10 @@ namespace component {
 
         void update() {
             ongeki_hardware::read_io(pOutputData);
+            
+            pOutputData->card_type = card_type;
+            pOutputData->card = card;
+
             RawHID.write(outBuffer, 64);
 
             if (RawHID.available()) {

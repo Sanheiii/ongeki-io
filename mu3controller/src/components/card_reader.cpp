@@ -3,36 +3,39 @@
 PN532_HSU pn532hsu(Serial1);
 PN532 nfc(pn532hsu);
 
-enum nfc_state
-{
-    felica_prepare,
-    felica_dump_serial_buffer,
-    felica_write,
-    felica_read_ack_frame,
-    felica_compare_ack_frame,
-    felica_read,
-    felica_reset,
-    felica_read_response,
-    felica_check_preamble,
-    felica_read_length,
-    felica_read_command,
-    felica_read_body,
-    felica_check_body,
-    felica_parse_data
+enum nfc_state {
+    START_READ,
+    FELICA_POLLING_PREPARE,
+    READ_PASSIVE_TARGET_ID_PREPARE,
+    AUTH_ENTICATE_BLOCK_PREPARE,
+    DUMP_SERIAL_BUFFER,
+    WRITE,
+    READ_ACK_FRAME,
+    COMPARE_ACK_FRAME,
+    READ,
+    RESET,
+    READ_RESPONSE,
+    CHECK_PREAMBLE,
+    READ_LENGTH,
+    READ_COMMAND,
+    READ_BODY,
+    CHECK_BODY,
+    FELICA_POLL_RESULT,
+    READ_PASSIVE_TARGET_ID_RESULT,
+    AUTH_ENTICATE_BLOCK_RESULT,
 };
 
-nfc_state state = nfc_state::felica_reset;
+nfc_state state = nfc_state::RESET;
 nfc_state state_next;
-;
+uint8_t command;
+uint8_t polling_type;
 uint8_t buffer[64];
 uint8_t buffer_length;
 uint8_t buffer_index;
 uint8_t tmp[2];
 
-uint8_t detected;
-uint8_t idm[8];
-uint8_t pmm[8];
-uint16_t systemCode;
+uint8_t card_type; // 0 not detected, 1 felica, 2 mifare
+Card card;
 
 bool firmwareVersionChecked = false; // Declaration of global variable
 
@@ -60,12 +63,28 @@ void receive(uint8_t length)
 {
     buffer_length = length;
     buffer_index = 0;
-    state = felica_read;
+    state = READ;
 }
 
 void nfc_poll()
 {
-    if (state == felica_prepare)
+    if(state == START_READ)
+    {
+        return;
+    }
+    else if(state == READ_PASSIVE_TARGET_ID_PREPARE)
+    {
+        command = PN532_COMMAND_INLISTPASSIVETARGET;
+        polling_type = 1;
+        return;
+    }
+    else if(state == AUTH_ENTICATE_BLOCK_PREPARE)
+    {
+        command = PN532_COMMAND_INDATAEXCHANGE;
+        polling_type = 1;
+        return;
+    }
+    else if (state == FELICA_POLLING_PREPARE)
     {
         buffer[0] = 0;
         buffer[1] = 0;
@@ -84,10 +103,12 @@ void nfc_poll()
         buffer[14] = 225;
         buffer[15] = 0;
         buffer_length = 16;
-        state = felica_dump_serial_buffer;
+        state = DUMP_SERIAL_BUFFER;
+        command = PN532_COMMAND_INLISTPASSIVETARGET;
+        polling_type = 2;
         return;
     }
-    else if (state == felica_dump_serial_buffer)
+    else if (state == DUMP_SERIAL_BUFFER)
     {
         if (Serial1.available())
         {
@@ -95,11 +116,11 @@ void nfc_poll()
             return;
         }
         buffer_index = 0;
-        state = felica_write;
-        state_next = felica_read_ack_frame;
+        state = WRITE;
+        state_next = READ_ACK_FRAME;
         return;
     }
-    else if (state == felica_write)
+    else if (state == WRITE)
     {
         if (buffer_index < buffer_length)
         {
@@ -113,20 +134,20 @@ void nfc_poll()
         buffer_index++;
         return;
     }
-    else if (state == felica_read_ack_frame)
+    else if (state == READ_ACK_FRAME)
     {
         receive(6);
-        state_next = felica_compare_ack_frame;
+        state_next = COMPARE_ACK_FRAME;
         return;
     }
-    else if (state == felica_read)
+    else if (state == READ)
     {
         if (buffer_index < buffer_length)
         {
             buffer[buffer_index] = Serial1.read();
             if (false)
             {
-                state = felica_reset;
+                state = RESET;
                 return;
             }
         }
@@ -138,79 +159,79 @@ void nfc_poll()
         buffer_index++;
         return;
     }
-    else if (state == felica_compare_ack_frame)
+    else if (state == COMPARE_ACK_FRAME)
     {
         const uint8_t PN532_ACK[] = {0, 0, 0xFF, 0, 0xFF, 0};
         if (memcmp(buffer, PN532_ACK, sizeof(PN532_ACK)))
         {
-            state = felica_reset;
+            state = RESET;
             return;
         }
         else
         {
-            state = felica_read_response;
+            state = READ_RESPONSE;
         }
         return;
     }
-    else if (state == felica_read_response)
+    else if (state == READ_RESPONSE)
     {
         receive(3);
-        state_next = felica_check_preamble;
+        state_next = CHECK_PREAMBLE;
         return;
     }
-    else if (state == felica_check_preamble)
+    else if (state == CHECK_PREAMBLE)
     {
         if (0 != buffer[0] || 0 != buffer[1] || (0xFF != buffer[2] && 0x0 != buffer[2]))
         {
-            state = felica_reset;
+            state = RESET;
             return;
         }
-        state = felica_read_length;
+        state = READ_LENGTH;
         return;
     }
-    else if (state == felica_read_length)
+    else if (state == READ_LENGTH)
     {
         receive(2);
-        state_next = felica_read_command;
+        state_next = READ_COMMAND;
         return;
     }
-    else if (state == felica_read_command)
+    else if (state == READ_COMMAND)
     {
         // check length
         if (0 != (uint8_t)(buffer[0] + buffer[1]))
         {
-            state = felica_reset;
+            state = RESET;
             return;
         }
         buffer[0] -= 2;
         if (buffer[0] > 22)
         {
-            state = felica_reset;
+            state = RESET;
             return;
         }
 
         tmp[0] = buffer[0];
 
         receive(2);
-        state_next = felica_read_body;
+        state_next = READ_BODY;
         return;
     }
-    else if (state == felica_read_body)
+    else if (state == READ_BODY)
     {
-        uint8_t cmd = PN532_COMMAND_INLISTPASSIVETARGET + 1;
+        uint8_t cmd = command + 1;
         if (PN532_PN532TOHOST != buffer[0] || cmd != buffer[1])
         {
-            state = felica_reset;
+            state = RESET;
             return;
         }
         receive(tmp[0]);
-        state_next = felica_check_body;
+        state_next = CHECK_BODY;
         return;
     }
 
-    else if (state == felica_check_body)
+    else if (state == CHECK_BODY)
     {
-        uint8_t cmd = PN532_COMMAND_INLISTPASSIVETARGET + 1;
+        uint8_t cmd = command + 1;
         uint8_t sum = PN532_PN532TOHOST + cmd;
         for (uint8_t i = 0; i < tmp[0]; i++)
         {
@@ -222,26 +243,37 @@ void nfc_poll()
 
         if (0 != (uint8_t)(sum + tmp[0]) || 0 != tmp[1])
         {
-            state = felica_reset;
+            state = RESET;
             return;
         }
 
-        state = felica_parse_data;
+        if(command == PN532_COMMAND_INLISTPASSIVETARGET)
+        {
+            state = READ_PASSIVE_TARGET_ID_RESULT;
+        }
+        else if(command == PN532_COMMAND_INDATAEXCHANGE)
+        {
+            state = AUTH_ENTICATE_BLOCK_RESULT;
+        }
+        else if(command == PN532_COMMAND_INLISTPASSIVETARGET)
+        {
+            state = FELICA_POLL_RESULT;
+        }
         return;
     }
-    else if (state == felica_parse_data)
+    else if (state == FELICA_POLL_RESULT)
     {
         if (buffer[0] == 0)
         {
             SerialDevice.println("No card had detected.");
             // No card had detected
-            state = felica_reset;
+            state = RESET;
             return;
         }
         else if (buffer[0] != 1)
         {
             // Unhandled number of targets inlisted. NbTg: {buffer[7]}
-            state = felica_reset;
+            state = RESET;
             return;
         }
 
@@ -250,7 +282,7 @@ void nfc_poll()
         if (responseLength != 18 && responseLength != 20)
         {
             // Wrong response length
-            state = felica_reset;
+            state = RESET;
             return;
         }
 
@@ -258,30 +290,26 @@ void nfc_poll()
         uint8_t i;
         for (i = 0; i < 8; ++i)
         {
-            idm[i] = buffer[4 + i];
-            pmm[i] = buffer[12 + i];
+            card.IDm[i] = buffer[4 + i];
+            card.PMm[i] = buffer[12 + i];
         }
         if (responseLength == 20)
         {
-            systemCode = (uint16_t)((buffer[20] << 8) + buffer[21]);
+            card.System_Code[0] = buffer[20];
+            card.System_Code[1] = buffer[21];
         }
-        detected = true;
+        card_type = 2;
 
-        //dump buffer
-        for(uint8_t i = 0; i < 8; i++)
-        {
-           SerialDevice.print(idm[i], HEX);
-           SerialDevice.print(" ");
-        }
-        SerialDevice.print("\n");
-
-        state = felica_prepare;
+        state = START_READ;
         return;
     }
-    else if (state == felica_reset)
+    else if (state == RESET)
     {
-        detected = false;
-        state = felica_prepare;
+        if(polling_type == card_type)
+        {
+            card_type == 0;
+        }
+        state = START_READ;
         return;
     }
 }

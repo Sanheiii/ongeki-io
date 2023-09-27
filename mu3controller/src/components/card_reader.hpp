@@ -27,7 +27,7 @@
 
 typedef union
 {
-    uint8_t block[18];
+    uint8_t luid[10];
     struct
     {
         uint8_t IDm[8];
@@ -43,6 +43,8 @@ typedef union
 #define M2F_B 1
 
 extern bool nfc_enable;
+extern uint8_t card_type;
+extern Card card;
 
 extern void nfc_setup(void);
 extern void nfc_poll(void);
