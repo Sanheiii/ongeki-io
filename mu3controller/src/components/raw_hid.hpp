@@ -1,4 +1,5 @@
 #pragma once
+#include "card_reader.hpp"
 
 namespace component {
     namespace raw_hid {
@@ -14,9 +15,9 @@ namespace component {
                 struct {
                     uint8_t buttons[10];
                     int16_t lever;
-                    uint8_t scan;
-                    aimi_id_t aimi_id;
                     uint8_t opt_buttons;
+                    uint8_t card_type;
+                    Card card;
                 };
             };
         };
