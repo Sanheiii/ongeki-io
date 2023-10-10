@@ -2,6 +2,8 @@
 #include <EEPROM.h>
 #include <FastLED.h>
 #include "components/card_reader.hpp"
+#include "components/led_board.hpp"
+#include <ResponsiveAnalogRead.h>
 
 namespace component
 {
@@ -10,6 +12,8 @@ namespace component
         using namespace std;
         const int LEVER = PIN_A0;
         const int LED_PIN = PIN_A1;
+
+        ResponsiveAnalogRead analog(LEVER, false);
 
         uint16_t lever_limit1 = 0;
         uint16_t lever_limit2= 1023;
@@ -24,12 +28,12 @@ namespace component
             FastLED.addLeds<WS2812B, LED_PIN, RGB>(lightColors, 6);
             EEPROM.get(EEPROM_ADDR_LEVER_LIMIT_1, lever_limit1);
             EEPROM.get(EEPROM_ADDR_LEVER_LIMIT_2, lever_limit2);
-            nfc_setup();
         }
 
         void read_io(raw_hid::output_data_t *data)
         {
-            uint16_t lever = analogRead(LEVER);
+            analog.update();
+            uint16_t lever = analog.getValue();
             
             // 设定摇杆范围
             if (manager::key_status[10] && manager::key_status[5])
@@ -97,7 +101,6 @@ namespace component
 
         void end()
         {
-            nfc_end();
             FastLED.clear();
             FastLED.show();
         }

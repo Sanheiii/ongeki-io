@@ -1,5 +1,6 @@
 #include "stdinclude.hpp"
 #include <EEPROM.h>
+#include "led_board.hpp"
 
 namespace component
 {
@@ -45,6 +46,8 @@ namespace component
             {
                 raw_hid::start();
                 ongeki_hardware::start();
+                nfc_setup();
+                led_board::start();
             }
             running = true;
         }
@@ -63,7 +66,12 @@ namespace component
             key_status[3] = key_status[3] ^ 1;
             key_status[8] = key_status[8] ^ 1;
 
-            //重置设置
+            if (key_status[4] && key_status[9])
+            {
+                key_status[10] = true;
+            }
+
+            // 重置设置
             if (key_status[10] && key_status[11])
             {
                 reset();
@@ -92,6 +100,8 @@ namespace component
             else
             {
                 raw_hid::update();
+                nfc_poll();
+                led_board::update();
             }
         }
 
@@ -105,7 +115,9 @@ namespace component
             else
             {
                 raw_hid::end();
+                nfc_end();
                 ongeki_hardware::end();
+                led_board::end();
             }
         }
 

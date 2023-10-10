@@ -20,6 +20,7 @@ namespace MU3Input
         private const ushort VID = 0x2341;
         private const ushort PID = 0x8036;
         protected OutputData data;
+        private bool reconnecting = false;
 
 
         public HidIO(HidIOConfig config)
@@ -34,10 +35,13 @@ namespace MU3Input
 
         public override void Reconnect()
         {
+            if (reconnecting) return;
+            reconnecting = true;
             if (IsConnected)
                 _hid.Close();
 
             _openCount = _hid.Open(1, VID, PID);
+            reconnecting = false;
         }
 
         public static int[] bitPosMap =

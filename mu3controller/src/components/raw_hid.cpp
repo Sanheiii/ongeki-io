@@ -37,8 +37,6 @@ namespace component {
                     }
                 }
             }
-
-            nfc_poll();
         }
 
         void end() {

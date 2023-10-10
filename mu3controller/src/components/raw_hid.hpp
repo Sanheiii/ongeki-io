@@ -36,7 +36,7 @@ namespace component {
         struct input_data_t {
             uint8_t type;
             union {
-                char buffer[63];
+                char buffer[61];
                 led_t led;
                 option_t option;
             };
