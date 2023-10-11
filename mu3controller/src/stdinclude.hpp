@@ -6,3 +6,5 @@
 
 #include "components/manager.hpp"
 #include "eeprom_address.h"
+
+#define HIGH_SIDE

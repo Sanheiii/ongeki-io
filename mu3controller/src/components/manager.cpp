@@ -62,9 +62,12 @@ namespace component
             {
                 key_status[i] = digitalRead(PIN_MAP[i]) == LOW;
             }
+
+            #ifdef HIGH_SIDE
             // 侧键
             key_status[3] = key_status[3] ^ 1;
             key_status[8] = key_status[8] ^ 1;
+            #endif
 
             if (key_status[4] && key_status[9])
             {
