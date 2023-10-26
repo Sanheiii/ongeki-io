@@ -1,6 +1,7 @@
 #include "stdinclude.hpp"
 #include "comio.hpp"
 
+#ifdef LED_BOARD
 namespace component
 {
     namespace led_board
@@ -12,3 +13,4 @@ namespace component
         void end();
     }
 }
+#endif

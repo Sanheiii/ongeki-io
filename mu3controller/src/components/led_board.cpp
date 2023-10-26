@@ -1,6 +1,8 @@
 #include "comio.hpp"
 #include <FastLED.h>
 #include "serial.hpp"
+
+#ifdef LED_BOARD
 namespace component
 {
     namespace led_board
@@ -139,7 +141,7 @@ namespace component
         {
             int i = 0;
 
-            for (i = 0; i < 10; i++)
+            for (i = 0; i < 18; i++)
             {
                 if (mode == 1)
                 {
@@ -197,3 +199,4 @@ namespace component
         }
     }
 }
+#endif

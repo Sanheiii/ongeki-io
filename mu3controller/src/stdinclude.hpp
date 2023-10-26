@@ -8,3 +8,4 @@
 #include "eeprom_address.h"
 
 #define HIGH_SIDE
+#define LED_BOARD

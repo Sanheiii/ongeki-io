@@ -1,5 +1,6 @@
 #include "stdinclude.hpp"
 
+#ifdef LED_BOARD
 enum io_packet_type_t : uint8_t
 {
     PACKET_TYPE_REQUEST,
@@ -201,3 +202,4 @@ inline size_t io_build_set_disable(uint8_t* buffer, size_t bufferSize, uint8_t d
 
     return totalLen;
 }
+#endif

@@ -13,10 +13,10 @@ namespace component
         const int LEVER = PIN_A0;
         const int LED_PIN = PIN_A1;
 
-        ResponsiveAnalogRead analog(LEVER, false);
+        ResponsiveAnalogRead analog(LEVER, true, 0.1F);
 
         uint16_t lever_limit1 = 0;
-        uint16_t lever_limit2= 1023;
+        uint16_t lever_limit2 = 1023;
         uint16_t lever_limit_left;
         uint16_t lever_limit_right;
 
@@ -32,9 +32,12 @@ namespace component
 
         void read_io(raw_hid::output_data_t *data)
         {
-            analog.update();
+            for (int i = 0; i < 10; i++)
+            {
+                analog.update();
+            }
             uint16_t lever = analog.getValue();
-            
+
             // 设定摇杆范围
             if (manager::key_status[10] && manager::key_status[5])
             {
@@ -78,7 +81,7 @@ namespace component
             uint8_t service_pressed = manager::key_status[10] && manager::key_status[1];
             uint8_t coin_pressed = manager::key_status[11];
             data->opt_buttons = (test_pressed << 0) | (service_pressed << 1) | (coin_pressed << 2);
-        
+
             // 读取按钮状态
             for (auto i = 0; i < 10; i++)
             {

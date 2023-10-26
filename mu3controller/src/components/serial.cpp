@@ -5,7 +5,7 @@
 namespace component {
     namespace serial {
         void init() {
-            Serial.begin(9600);
+            Serial.begin(115200);
         }
 
         void write(uint8_t byte) {
