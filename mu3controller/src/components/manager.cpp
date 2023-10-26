@@ -47,7 +47,9 @@ namespace component
                 raw_hid::start();
                 ongeki_hardware::start();
                 nfc_setup();
+                #ifdef LED_BOARD
                 led_board::start();
+                #endif
             }
             running = true;
         }
@@ -104,7 +106,9 @@ namespace component
             {
                 raw_hid::update();
                 nfc_poll();
+                #ifdef LED_BOARD
                 led_board::update();
+                #endif
             }
         }
 
@@ -120,7 +124,9 @@ namespace component
                 raw_hid::end();
                 nfc_end();
                 ongeki_hardware::end();
+                #ifdef LED_BOARD
                 led_board::end();
+                #endif
             }
         }
 
