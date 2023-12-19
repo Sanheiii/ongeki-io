@@ -45,6 +45,10 @@ namespace MU3Input
             23, 19, 22, 20, 21, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6
         };
 
+        private long map(long x, long in_min, long in_max, long out_min, long out_max)
+        {
+            return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+        }
 
         private unsafe void PollThread()
         {
@@ -64,14 +68,7 @@ namespace MU3Input
                 OutputData temp = new OutputData();
                 temp.Buttons = new ArraySegment<byte>(_inBuffer, 0, 10).ToArray();
                 short lever;
-                if (config.InvertLever)
-                {
-                    lever = (short)(-BitConverter.ToInt16(_inBuffer, 10) - 1);
-                }
-                else
-                {
-                    lever = BitConverter.ToInt16(_inBuffer, 10);
-                }
+                lever = BitConverter.ToInt16(_inBuffer, 10);
                 if (config.AutoCal)
                 {
                     if (lever < config.LeverLeft)
@@ -87,11 +84,8 @@ namespace MU3Input
                 }
                 if (config.LeverRight != config.LeverLeft)
                 {
-                    double normLever = (lever - config.LeverLeft) / (double)(config.LeverRight - config.LeverLeft);
-                    if (normLever < 0) normLever = 0;
-                    if (normLever > 1) normLever = 1;
-                    double leverd = -30000 + 60001 * normLever;
-                    temp.Lever = ((short)leverd);
+                    short leverd = (short)map(lever, config.LeverRight, config.LeverLeft, -20000, 20000);
+                    temp.Lever = leverd;
                 }
                 else
                 {
@@ -155,6 +149,5 @@ namespace MU3Input
         public bool AutoCal { get; set; } = true;
         public short LeverLeft { get; set; } = short.MaxValue;
         public short LeverRight { get; set; } = short.MinValue;
-        public bool InvertLever { get; set; } = true;
     }
 }
