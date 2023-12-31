@@ -19,6 +19,8 @@ namespace MU3Input
         private readonly SimpleRawHID _hid = new SimpleRawHID();
         private const ushort VID = 0x2341;
         private const ushort PID = 0x8036;
+        private const ushort USAGE_PAGE = 0xFFC0;
+        private const ushort USAGE = 0x0C00;
         protected OutputData data;
 
 
@@ -37,7 +39,7 @@ namespace MU3Input
             if (IsConnected)
                 _hid.Close();
 
-            _openCount = _hid.Open(1, VID, PID);
+            _openCount = _hid.Open(1, VID, PID,USAGE_PAGE,USAGE);
         }
 
         public static int[] bitPosMap =
@@ -84,7 +86,7 @@ namespace MU3Input
                 }
                 if (config.LeverRight != config.LeverLeft)
                 {
-                    short leverd = (short)map(lever, config.LeverRight, config.LeverLeft, -20000, 20000);
+                    short leverd = (short)map(lever, config.LeverLeft, config.LeverRight, -20000, 20000);
                     temp.Lever = leverd;
                 }
                 else
@@ -93,6 +95,7 @@ namespace MU3Input
                 }
                 temp.OptButtons = (OptButtons)_inBuffer[12];
                 temp.Aime.Scan = _inBuffer[13];
+                temp.Aime.Data = new byte[18];
                 if (temp.Aime.Scan == 1)
                 {
                     byte[] mifareID = new ArraySegment<byte>(_inBuffer, 14, 10).ToArray();

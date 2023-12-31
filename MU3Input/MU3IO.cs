@@ -1,4 +1,6 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
+using System.IO;
 using System.IO.MemoryMappedFiles;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
@@ -16,20 +18,28 @@ namespace MU3Input
 
         static Mu3IO()
         {
-            var io = new MixedIO();
-            foreach (var ioConfig in Config.Instance.IO)
+            StreamWriter file = new StreamWriter("IO_log.txt");
+            try
             {
-                io.Add(io.CreateIO(ioConfig.Type, ioConfig.Param), ioConfig.Part);
+                var io = new MixedIO();
+                foreach (var ioConfig in Config.Instance.IO)
+                {
+                    io.Add(io.CreateIO(ioConfig.Type, ioConfig.Param), ioConfig.Part);
+                }
+                IO = io;
+                _test = new IOTest(io);
+
+                //与mod共享内存以接收LED数据
+                mmf = MemoryMappedFile.CreateOrOpen("mu3_led_data", 66 * 3);
+                accessor = mmf.CreateViewAccessor(0, 66 * 3);
+                LedData = new byte[6];
+                Task.Run(() => _test.ShowDialog());
             }
-            IO = io;
-            _test = new IOTest(io);
-
-            //与mod共享内存以接收LED数据
-            mmf = MemoryMappedFile.CreateOrOpen("mu3_led_data", 66 * 3);
-            accessor = mmf.CreateViewAccessor(0, 66 * 3);
-            LedData = new byte[6];
-
-            Task.Run(() => _test.ShowDialog());
+            catch(Exception ex)
+            {
+                file.WriteLine(ex.Message);
+            }
+            
         }
 
         [DllExport(ExportName = "mu3_io_get_api_version")]
