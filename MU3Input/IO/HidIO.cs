@@ -99,16 +99,24 @@ namespace MU3Input
                 if (temp.Aime.Scan == 1)
                 {
                     byte[] mifareID = new ArraySegment<byte>(_inBuffer, 14, 10).ToArray();
-                    bool flag = true;
+                    bool flag_FF = true;
+                    bool flag_00 = true;
                     for (int i = 0; i < 10; i++)
                     {
                         if (mifareID[i] != 255)
                         {
-                            flag = false;
+                            flag_FF = false;
                             break;
                         }
-                    }
-                    if (flag)
+
+                        if (mifareID[i] != 0)
+                        {
+                            flag_00 = false;
+                            break;
+                        }
+                    };
+                    
+                    if (flag_FF||flag_00)
                     {
                         mifareID = Utils.ReadOrCreateAimeTxt();
                     }
