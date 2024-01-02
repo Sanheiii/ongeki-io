@@ -28,6 +28,8 @@
 using Microsoft.Win32.SafeHandles;
 
 using System;
+using System.Diagnostics;
+using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Threading;
 
@@ -249,6 +251,7 @@ namespace SimpleHID.Raw
             uint index = 0;
             int deviceCount = 0;
             bool retValue;
+            uint freeCount = 0;
 
             while (true)
             {
@@ -290,8 +293,8 @@ namespace SimpleHID.Raw
                 retValue = HidD_GetAttributes(h, ref attrib);
 
                 IntPtr hidData = new IntPtr(0);
-                Console.WriteLine($"{index} - {attrib.VendorID:x}:{attrib.ProductID:x}");
-
+                Debug.WriteLine($"{index} - {attrib.VendorID:x}:{attrib.ProductID:x}");
+                
                 if (!retValue || (vid > 0 && attrib.VendorID != vid) ||
                     (pid > 0 && attrib.ProductID != pid) ||
                     !HidD_GetPreparsedData(h, ref hidData))

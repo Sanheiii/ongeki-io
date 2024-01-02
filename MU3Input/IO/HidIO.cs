@@ -13,7 +13,8 @@ namespace MU3Input
     // ReSharper disable once InconsistentNaming
     public class HidIO : IO
     {
-        private HidIOConfig config;
+        private HidIOConfig Config;
+        private short LeverDir = 0;
         protected int _openCount = 0;
         private byte[] _inBuffer = new byte[64];
         private readonly SimpleRawHID _hid = new SimpleRawHID();
@@ -26,7 +27,8 @@ namespace MU3Input
 
         public HidIO(HidIOConfig config)
         {
-            this.config = config;
+            Config = config;
+            LeverDir = (short)((Config.LeverLeft - Config.LeverRight < 0) ? -1 : 1);
             data = new OutputData() { Buttons = new byte[10], Aime = new Aime() { Data = new byte[18] } };
             Reconnect();
             new Thread(PollThread).Start();
@@ -39,7 +41,7 @@ namespace MU3Input
             if (IsConnected)
                 _hid.Close();
 
-            _openCount = _hid.Open(1, VID, PID,USAGE_PAGE,USAGE);
+            _openCount = _hid.Open(1, VID, PID, USAGE_PAGE, USAGE);
         }
 
         public static int[] bitPosMap =
@@ -71,22 +73,40 @@ namespace MU3Input
                 temp.Buttons = new ArraySegment<byte>(_inBuffer, 0, 10).ToArray();
                 short lever;
                 lever = BitConverter.ToInt16(_inBuffer, 10);
-                if (config.AutoCal)
+                if (Config.AutoCal)
                 {
-                    if (lever < config.LeverLeft)
+                    if (LeverDir == -1)
                     {
-                        config.LeverLeft = lever;
-                        Console.WriteLine($"Set lever range: {config.LeverLeft}-{config.LeverRight}");
+                        if (lever < Config.LeverLeft)
+                        {
+                            Config.LeverLeft = lever;
+                            Console.WriteLine($"Set lever range: {Config.LeverLeft}-{Config.LeverRight}");
+                        }
+                        if (lever > Config.LeverRight)
+                        {
+                            Config.LeverRight = lever;
+                            Console.WriteLine($"Set lever range: {Config.LeverLeft}-{Config.LeverRight}");
+                        }
                     }
-                    if (lever > config.LeverRight)
+                    if (LeverDir == 1)
                     {
-                        config.LeverRight = lever;
-                        Console.WriteLine($"Set lever range: {config.LeverLeft}-{config.LeverRight}");
+                        if (lever > Config.LeverLeft)
+                        {
+                            Config.LeverLeft = lever;
+                            Console.WriteLine($"Set lever range: {Config.LeverLeft}-{Config.LeverRight}");
+                        }
+                        if (lever < Config.LeverRight)
+                        {
+                            Config.LeverRight = lever;
+                            Console.WriteLine($"Set lever range: {Config.LeverLeft}-{Config.LeverRight}");
+                        }
                     }
+
+
                 }
-                if (config.LeverRight != config.LeverLeft)
+                if (Config.LeverRight != Config.LeverLeft)
                 {
-                    short leverd = (short)map(lever, config.LeverLeft, config.LeverRight, -20000, 20000);
+                    short leverd = (short)map(lever, Config.LeverLeft, Config.LeverRight, -20000, 20000);
                     temp.Lever = leverd;
                 }
                 else
@@ -115,8 +135,8 @@ namespace MU3Input
                             break;
                         }
                     };
-                    
-                    if (flag_FF||flag_00)
+
+                    if (flag_FF || flag_00)
                     {
                         mifareID = Utils.ReadOrCreateAimeTxt();
                     }
