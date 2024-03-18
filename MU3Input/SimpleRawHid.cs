@@ -1,4 +1,4 @@
-﻿/* Simple Raw HID functions for C# based on http://www.pjrc.com/teensy/rawhid.html C functions (Copyright (c) 2009 PJRC.COM, LLC)
+/* Simple Raw HID functions for C# based on http://www.pjrc.com/teensy/rawhid.html C functions (Copyright (c) 2009 PJRC.COM, LLC)
  * Copyright (c) 2017 Jan Henrik Sawatzki<jhs@sawatzki-home.de>
  *
  *  Open - open 1 or more HID devices
@@ -26,7 +26,6 @@
  */
 
 using Microsoft.Win32.SafeHandles;
-
 using System;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -151,6 +150,9 @@ namespace SimpleHID.Raw
         private static extern IntPtr SetupDiGetClassDevs(ref Guid ClassGuid, IntPtr Enumerator, IntPtr hwndParent, DiGetClassFlags Flags);
 
         [DllImport("setupapi.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        public static extern bool SetupDiDestroyDeviceInfoList(IntPtr DeviceInfoSet);
+
+        [DllImport("setupapi.dll", CharSet = CharSet.Auto, SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool SetupDiGetDeviceInterfaceDetail(IntPtr hDevInfo, ref SP_DEVICE_INTERFACE_DATA deviceInterfaceData, ref SP_DEVICE_INTERFACE_DETAIL_DATA deviceInterfaceDetailData, uint deviceInterfaceDetailDataSize, IntPtr requiredSize, IntPtr deviceInfoData);
 
@@ -258,6 +260,7 @@ namespace SimpleHID.Raw
                 retValue = SetupDiEnumDeviceInterfaces(info, IntPtr.Zero, ref guid, index, ref iface);
                 if (!retValue)
                 {
+                    SetupDiDestroyDeviceInfoList(info);
                     return deviceCount;
                 }
                 SP_DEVICE_INTERFACE_DETAIL_DATA details = new SP_DEVICE_INTERFACE_DETAIL_DATA();
@@ -290,7 +293,7 @@ namespace SimpleHID.Raw
                 retValue = HidD_GetAttributes(h, ref attrib);
 
                 IntPtr hidData = new IntPtr(0);
-                Console.WriteLine($"{index} - {attrib.VendorID:x}:{attrib.ProductID:x}");
+                // Console.WriteLine($"{index} - {attrib.VendorID:x}:{attrib.ProductID:x}");
 
                 if (!retValue || (vid > 0 && attrib.VendorID != vid) ||
                     (pid > 0 && attrib.ProductID != pid) ||
@@ -326,6 +329,7 @@ namespace SimpleHID.Raw
                 deviceCount++;
                 if (deviceCount >= max)
                 {
+                    SetupDiDestroyDeviceInfoList(info);
                     return deviceCount;
                 }
                 index++;
@@ -433,7 +437,7 @@ namespace SimpleHID.Raw
         //  Output:
         //      number of bytes sent, or -1 on error
         //
-        public int Send(int num, byte[] buf, int len, int timeout)
+        public int Send(int num, byte report_id, byte[] buf, int len, int timeout)
         {
             byte[] tempBuffer = new byte[516];
 
@@ -453,12 +457,13 @@ namespace SimpleHID.Raw
             NativeOverlapped overlapped = new NativeOverlapped();
             overlapped.EventHandle = SendEvent;
 
-            tempBuffer[0] = 0;
+            tempBuffer[0] = report_id;
             Array.Copy(buf, 0, tempBuffer, 1, len);
 
             if (!WriteFile(device.Handle, tempBuffer, (uint)len + 1, IntPtr.Zero, ref overlapped))
             {
-                if (Marshal.GetLastWin32Error() != ERROR_IO_PENDING)
+                var err = Marshal.GetLastWin32Error();
+                if (err != ERROR_IO_PENDING)
                 {
                     LeaveCriticalSection(ref SendMutex);
                     return -1;
