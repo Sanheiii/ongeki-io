@@ -11,6 +11,7 @@ namespace MU3Input
 {
     public class UdpIO : IO
     {
+        private bool _disposedValue = false;
         uint currentLedData = 0;
         UdpClient client;
         IPEndPoint savedEP;
@@ -45,9 +46,18 @@ namespace MU3Input
         {
             while (true)
             {
-                byte[] buffer = client?.Receive(ref remoteEP);
+                if(_disposedValue) return;
+                byte[] buffer;
+                try
+                {
+                    buffer = client?.Receive(ref remoteEP);
+                }
+                catch
+                {
+                    buffer = [];
+                }
                 // 如果已连接设备但收到了其他设备的消息则忽略
-                if (IsConnected && (!remoteEP.Address.Equals(savedEP?.Address))) return;
+                if (IsConnected && (!remoteEP.Address.Equals(savedEP?.Address))) continue;
                 ParseBuffer(buffer);
             }
         }
@@ -132,5 +142,10 @@ namespace MU3Input
             }
         }
 
+        public override void Dispose()
+        {
+            _disposedValue = true;
+            client?.Dispose();
+        }
     }
 }

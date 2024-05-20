@@ -1,19 +1,9 @@
 ﻿using SimpleHID.Raw;
 
-using System;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Threading;
-using System.Windows.Forms;
-
-using static MU3Input.KeyboardIO;
-
 namespace MU3Input
 {
-    // ReSharper disable once InconsistentNaming
     public class HidIO : IO
     {
-        private HidIOConfig config;
         protected int _openCount = 0;
         private byte[] _inBuffer = new byte[64];
         private readonly SimpleRawHID _hid = new SimpleRawHID();
@@ -21,11 +11,11 @@ namespace MU3Input
         private const ushort PID = 0x8036;
         protected OutputData data;
         private bool reconnecting = false;
+        bool _disposedValue = false;
 
 
-        public HidIO(HidIOConfig config)
+        public HidIO()
         {
-            this.config = config;
             data = new OutputData() { Buttons = new byte[10], Aime = new Aime() { Data = new byte[18] } };
             Reconnect();
             new Thread(PollThread).Start();
@@ -35,7 +25,7 @@ namespace MU3Input
 
         public override void Reconnect()
         {
-            if (reconnecting) return;
+            if (reconnecting || _disposedValue) return;
             reconnecting = true;
             if (IsConnected)
                 _hid.Close();
@@ -54,8 +44,8 @@ namespace MU3Input
         {
             while (true)
             {
-                if (!IsConnected)
-                    continue;
+                if(_disposedValue) return;
+                if (!IsConnected) continue;
 
                 var len = _hid.Receive(0, ref _inBuffer, 64, 1000);
                 if (len < 0)
@@ -67,40 +57,7 @@ namespace MU3Input
 
                 OutputData temp = new OutputData();
                 temp.Buttons = new ArraySegment<byte>(_inBuffer, 0, 10).ToArray();
-                short lever;
-                if (config.InvertLever)
-                {
-                    lever = (short)(-BitConverter.ToInt16(_inBuffer, 10) - 1);
-                }
-                else
-                {
-                    lever = BitConverter.ToInt16(_inBuffer, 10);
-                }
-                if (config.AutoCal)
-                {
-                    if (lever < config.LeverLeft)
-                    {
-                        config.LeverLeft = lever;
-                        Console.WriteLine($"Set lever range: {config.LeverLeft}-{config.LeverRight}");
-                    }
-                    if (lever > config.LeverRight)
-                    {
-                        config.LeverRight = lever;
-                        Console.WriteLine($"Set lever range: {config.LeverLeft}-{config.LeverRight}");
-                    }
-                }
-                if (config.LeverRight != config.LeverLeft)
-                {
-                    double normLever = (lever - config.LeverLeft) / (double)(config.LeverRight - config.LeverLeft);
-                    if (normLever < 0) normLever = 0;
-                    if (normLever > 1) normLever = 1;
-                    double leverd = -30000 + 60001 * normLever;
-                    temp.Lever = ((short)leverd);
-                }
-                else
-                {
-                    temp.Lever = data.Lever;
-                }
+                temp.Lever = BitConverter.ToInt16(_inBuffer, 10);
                 temp.OptButtons = (OptButtons)_inBuffer[12];
                 temp.Aime.Scan = _inBuffer[13];
                 temp.Aime.Data = new byte[18];
@@ -151,15 +108,19 @@ namespace MU3Input
             fixed (void* d = outBuffer)
                 Kernel32.CopyMemory(d, &led, 64);
 
-            _hid.Send(0, outBuffer, 64, 1000);
+            _hid.Send(0, 0, outBuffer, 64, 1000);
         }
 
+        public override void Dispose()
+        {
+            _disposedValue = true;
+            _openCount = 0;
+            _hid.Close();
+        }
     }
     public class HidIOConfig
     {
-        public bool AutoCal { get; set; } = true;
         public short LeverLeft { get; set; } = short.MaxValue;
         public short LeverRight { get; set; } = short.MinValue;
-        public bool InvertLever { get; set; } = true;
     }
 }

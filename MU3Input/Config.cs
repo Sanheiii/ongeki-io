@@ -1,62 +1,71 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using Newtonsoft.Json.Linq;
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.Json;
+using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
 
 namespace MU3Input
 {
     public class Config
     {
-        public static Config Instance;
         private static string configPath;
-        static Config()
+
+
+        public static Config? Load()
         {
-            var location = typeof(Mu3IO).Assembly.Location;
-            string directoryName = Path.GetDirectoryName(location);
+            Config res;
+            var directoryName = Directory.GetCurrentDirectory();
             configPath = Path.Combine(directoryName, "mu3input_config.json");
             if (File.Exists(configPath))
             {
-                Instance = JsonConvert.DeserializeObject<Config>(File.ReadAllText(configPath), new JsonSerializerSettings());
+                res = JsonSerializer.Deserialize(File.ReadAllText(configPath), ConfigContext.Default.Config);
             }
             else
             {
-                Instance = new Config();
-                Instance.IO = new List<IOConfig>()
-                {
-                    new IOConfig()
+                res = GetDefault();
+                res.Save(configPath);
+            }
+
+            return res;
+        }
+
+        private static Config GetDefault()
+        {
+            var config = new Config
+            {
+                IO =
+                [
+                    new IOConfig
                     {
                         Type = IOType.Udp,
-                        Param = 4354,
-                        Part = ControllerPart.All
+                        Param = JsonValue.Create(4354),
+                        Scope = Scope.All
                     }
-                };
-                Instance.Save(configPath);
-            }
+                ]
+            };
+            return config;
         }
+
         public void Save()
         {
             Save(configPath);
         }
+
         public void Save(string path)
         {
-            File.WriteAllText(path, JsonConvert.SerializeObject(this, new JsonSerializerSettings()
-            {
-                Formatting = Formatting.Indented,
-            }));
+            File.WriteAllText(path, JsonSerializer.Serialize(this, ConfigContext.Default.Config));
         }
-        private Config() { }
-        public List<IOConfig> IO { get; set; }
+
+        public List<IOConfig> IO { get; set; } = new();
     }
     public class IOConfig
     {
-        [JsonConverter(typeof(StringEnumConverter))]
+        [JsonConverter(typeof(JsonStringEnumConverter<IOType>))]
         public IOType Type { get; set; }
-        public JToken Param { get; set; }
-        [JsonConverter(typeof(StringEnumConverter))]
-        public ControllerPart Part { get; set; }
+        public JsonValue Param { get; set; }
+        [JsonConverter(typeof(JsonStringEnumConverter<Scope>))]
+        public Scope Scope { get; set; }
     }
 
 
@@ -66,7 +75,7 @@ namespace MU3Input
     }
 
     [Flags]
-    public enum ControllerPart
+    public enum Scope
     {
         None = 0,
         L1 = 1 << 0,
@@ -92,5 +101,11 @@ namespace MU3Input
         Buttons = GameButtons | Menu,
         GamePlay = GameButtons | Lever,
         All = GamePlay | Menu | Aime,
+    }
+
+    [JsonSourceGenerationOptions(WriteIndented = true)]
+    [JsonSerializable(typeof(Config))]
+    public partial class ConfigContext : JsonSerializerContext
+    {
     }
 }

@@ -1,9 +1,6 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Text.Json;
+using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
 
 using static MU3Input.KeyboardIO;
 
@@ -11,7 +8,9 @@ namespace MU3Input
 {
     public class MixedIO : IO
     {
-        public override bool IsConnected => true;
+        private bool _disposedValue = false;
+        private bool _isConnected = true;
+        public override bool IsConnected => _isConnected;
         public override void Reconnect()
         {
             foreach (var item in Items)
@@ -19,7 +18,7 @@ namespace MU3Input
                 item.Key.Reconnect();
             }
         }
-        public Dictionary<IO, ControllerPart> Items { get; }
+        public Dictionary<IO, Scope> Items { get; }
         public override OutputData Data
         {
             get
@@ -27,17 +26,20 @@ namespace MU3Input
                 var buttons = new byte[10];
                 for (int i = 0; i < 10; i++)
                 {
-                    var io = Items.FirstOrDefault(item => item.Value.HasFlag((ControllerPart)(1 << i))).Key;
-                    buttons[i] = io == null ? (byte)0 : io.Data.Buttons[i];
+                    var ios = Items.Where(item => item.Value.HasFlag((Scope)(1 << i))).Select(io => io.Key);
+                    foreach (var io in ios)
+                    {
+                        buttons[i] += io.Data.Buttons[i];
+                    }
                 }
                 short lever = default;
                 IO aimeIO = null;
 
                 foreach (var item in Items)
                 {
-                    if (item.Value.HasFlag(ControllerPart.Lever))
+                    if (item.Value.HasFlag(Scope.Lever))
                         lever = item.Key.Data.Lever;
-                    if (item.Value.HasFlag(ControllerPart.Aime))
+                    if (item.Value.HasFlag(Scope.Aime) && item.Key.Aime.Scan > 0)
                         aimeIO = item.Key;
                     if (!item.Key.IsConnected)
                         item.Key.Reconnect();
@@ -46,60 +48,37 @@ namespace MU3Input
                 {
                     Buttons = buttons,
                     Lever = lever,
-                    Aime = aimeIO?.Aime ?? default,
-                    OptButtons = Items.Select(item => item.Key.Data.OptButtons).Aggregate((item1, item2) => item1 | item2),
+                    Aime = aimeIO?.Aime ?? new Aime(){Scan = 0,Data = new byte[18]},
+                    OptButtons = Items.Select(item => item.Key.Data.OptButtons).Concat([OptButtons.None]).Aggregate((item1, item2) => item1 | item2),
                 };
             }
         }
 
         public MixedIO()
         {
-            Items = new Dictionary<IO, ControllerPart>();
+            Items = new Dictionary<IO, Scope>();
         }
 
-        public IO CreateIO(IOType type, JToken param)
+        public IO CreateIO(IOType type, JsonValue param)
         {
             switch (type)
             {
                 case IOType.Hid:
-                    return new HidIO(param.ToObject<HidIOConfig>());
+                    return new HidIO();
                 case IOType.Udp:
-                    return new UdpIO(param.Value<int>());
+                    return new UdpIO(param.GetValue<int>());
                 case IOType.Tcp:
-                    return new TcpIO(param.Value<int>());
+                    return new TcpIO(param.GetValue<int>());
                 case IOType.Usbmux:
-                    return new UsbmuxIO(param.Value<ushort>());
+                    return new UsbmuxIO(param.GetValue<ushort>());
                 case IOType.Keyboard:
-                    return new KeyboardIO(param.ToObject<KeyboardIOConfig>());
+                    return new KeyboardIO(JsonSerializer.Deserialize(param, KeyboardIOConfigContext.Default.KeyboardIOConfig));
                 default: throw new ArgumentException($"{type}: Unknown IO type");
             }
         }
-        public void Add(IO io, ControllerPart part)
+        public void Add(IO io, Scope part)
         {
-            if (Check(part, Items.Select(i => i.Value).ToArray()))
-            {
-                Items.Add(io, part);
-            }
-        }
-        public void Remove(IO io)
-        {
-            Items.Remove(io);
-        }
-
-        public void Modify(IO io, ControllerPart part)
-        {
-            var parts = Items.Where(item => item.Key != io).Select(item => item.Value).ToArray();
-            if (Check(part, parts))
-            {
-                Items[io] = part;
-            }
-        }
-
-        public bool Check(ControllerPart part1, params ControllerPart[] parts)
-        {
-            if (parts.Length == 0) return true;
-            ControllerPart part2 = parts.Aggregate((p1, p2) => p1 | p2);
-            return (part1 & part2) == ControllerPart.None;
+            Items.Add(io, part);
         }
 
         private uint currentLedData = 0;
@@ -107,6 +86,17 @@ namespace MU3Input
         {
             currentLedData = data;
             foreach (IO io in Items.Keys) io.SetLed(currentLedData);
+        }
+
+        public override void Dispose()
+        {
+            _disposedValue = true;
+            foreach (var io in Items.Keys)
+            {
+                io.Dispose();
+            }
+
+            _isConnected = false;
         }
     }
 }

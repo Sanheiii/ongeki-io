@@ -6,29 +6,24 @@ using System.Runtime.InteropServices;
 
 namespace MU3Input
 {
-    public static class AimiIO
+    public static class AimeIO
     {
-        [DllExport(CallingConvention = CallingConvention.Cdecl, ExportName = "aime_io_get_api_version")]
+        [UnmanagedCallersOnly(EntryPoint = "aime_io_get_api_version", CallConvs = [typeof(CallConvCdecl)])]
         public static ushort GetVersion() => 0x0200;
 
-        [DllExport(CallingConvention = CallingConvention.Cdecl, ExportName = "aime_io_init")]
+        [UnmanagedCallersOnly(EntryPoint = "aime_io_init", CallConvs = [typeof(CallConvCdecl)])]
         public static uint Init()
         {
-            if (Process.GetCurrentProcess().ProcessName != "amdaemon" &&
-                Process.GetCurrentProcess().ProcessName != "Debug" &&
-                Process.GetCurrentProcess().ProcessName != "Test")
-                return 1;
-
             return 0;
         }
 
-        [DllExport(CallingConvention = CallingConvention.Cdecl, ExportName = "aime_io_nfc_poll")]
+        [UnmanagedCallersOnly(EntryPoint = "aime_io_nfc_poll", CallConvs = [typeof(CallConvCdecl)])]
         public static uint Poll(byte unitNumber)
         {
             return 0;
         }
 
-        [DllExport(CallingConvention = CallingConvention.Cdecl, ExportName = "aime_io_nfc_get_felica_id")]
+        [UnmanagedCallersOnly(EntryPoint = "aime_io_nfc_get_felica_id", CallConvs = [typeof(CallConvCdecl)])]
         public static unsafe uint GetFelicaId(byte unitNumber, ulong* id)
         {
             if (Mu3IO.IO == null || Mu3IO.IO.Aime.Scan != 2)
@@ -42,7 +37,7 @@ namespace MU3Input
             }
         }
 
-        [DllExport(CallingConvention = CallingConvention.Cdecl, ExportName = "aime_io_nfc_get_felica_pm")]
+        [UnmanagedCallersOnly(EntryPoint = "aime_io_nfc_get_felica_pm", CallConvs = [typeof(CallConvCdecl)])]
         public static unsafe uint GetFelicaPm(byte unitNumber, ulong* pm)
         {
             if (Mu3IO.IO == null || Mu3IO.IO.Aime.Scan != 2)
@@ -56,7 +51,7 @@ namespace MU3Input
             }
         }
 
-        [DllExport(CallingConvention = CallingConvention.Cdecl, ExportName = "aime_io_nfc_get_felica_system_code")]
+        [UnmanagedCallersOnly(EntryPoint = "aime_io_nfc_get_felica_system_code", CallConvs = [typeof(CallConvCdecl)])]
         public static unsafe uint GetFelicaSystemCode(byte unitNumber, ushort* systemCode)
         {
             if (Mu3IO.IO == null || Mu3IO.IO.Aime.Scan != 2)
@@ -70,7 +65,7 @@ namespace MU3Input
             }
         }
 
-        [DllExport(CallingConvention = CallingConvention.Cdecl, ExportName = "aime_io_nfc_get_aime_id")]
+        [UnmanagedCallersOnly(EntryPoint = "aime_io_nfc_get_aime_id", CallConvs = [typeof(CallConvCdecl)])]
         public static unsafe uint GetAimeId(byte unitNumber, byte* id, ulong size)
         {
             if (Mu3IO.IO == null || Mu3IO.IO.Aime.Scan != 1) return 1;
@@ -83,7 +78,7 @@ namespace MU3Input
             return 0;
         }
 
-        [DllExport(CallingConvention = CallingConvention.Cdecl, ExportName = "aime_io_led_set_color")]
+        [UnmanagedCallersOnly(EntryPoint = "aime_io_led_set_color", CallConvs = [typeof(CallConvCdecl)])]
         public static void SetColor(byte unitNumber, byte r, byte g, byte b)
         {
 

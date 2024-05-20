@@ -8,13 +8,17 @@ namespace MU3Input
     public struct OutputData
     {
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 10, ArraySubType = UnmanagedType.U1)]
-        public byte[] Buttons;
+        public byte[] Buttons = new byte[10];
 
         public short Lever;
 
         public OptButtons OptButtons;
 
         public Aime Aime;
+
+        public OutputData()
+        {
+        }
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1, Size = 64)]
@@ -27,15 +31,7 @@ namespace MU3Input
         public fixed byte LedColors[3 * 10];
     }
 
-    [StructLayout(LayoutKind.Sequential, Pack = 1, Size = 64)]
-    public unsafe struct SetOptionInput
-    {
-        public byte Type;
-
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 10)]
-        public fixed byte AimiId[10];
-    }
-    public abstract class IO
+    public abstract class IO : IDisposable
     {
         public abstract OutputData Data { get; }
 
@@ -106,6 +102,7 @@ namespace MU3Input
         public abstract bool IsConnected { get; }
         public abstract void Reconnect();
         public abstract void SetLed(uint data);
+        public abstract void Dispose();
     }
     [Flags]
     public enum OptButtons : byte
@@ -123,7 +120,11 @@ namespace MU3Input
         public byte Scan;
 
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 18, ArraySubType = UnmanagedType.U1)]
-        public byte[] Data;
+        public byte[] Data = new byte[18];
+
+        public Aime()
+        {
+        }
 
         public byte[] ID
         {

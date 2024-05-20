@@ -1,0 +1,71 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+    <RootNamespace>IOConfig</RootNamespace>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <Platforms>x64</Platforms>
+    <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
+    <UseWinUI>true</UseWinUI>
+	<WindowsPackageType>None</WindowsPackageType>
+	<EnableMsixTooling>true</EnableMsixTooling>
+	<WindowsAppSDKBootstrapAutoInitializeOptions_OnNoMatch_ShowUI>true</WindowsAppSDKBootstrapAutoInitializeOptions_OnNoMatch_ShowUI>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="Page\**" />
+    <EmbeddedResource Remove="Page\**" />
+    <None Remove="Page\**" />
+    <Page Remove="Page\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="AddControllerDialogContent.xaml" />
+    <None Remove="EditScopeDialogContent.xaml" />
+    <None Remove="HomePage.xaml" />
+    <None Remove="KeyboardInputSettingDialogContent.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
+    <PackageReference Include="CommunityToolkit.WinUI.Controls.SettingsControls" Version="8.0.240109" />
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.5.240428000" />
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1" />
+    <PackageReference Include="WinUICommunity.Components" Version="6.8.0" />
+    <Manifest Include="$(ApplicationManifest)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="HomePage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+  	<TrimmerRootAssembly Include="Microsoft.WinUI" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="AddControllerDialogContent.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Update="KeyboardInputSettingDialogContent.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Update="EditScopeDialogContent.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <PRIResource Remove="Page\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Mu3Input.cs">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="MU3Input.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+</Project>

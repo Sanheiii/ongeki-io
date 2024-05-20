@@ -11,6 +11,7 @@ namespace MU3Input
 {
     public class TcpIO : IO
     {
+        private bool _disposedValue = false;
         private string ip = "127.0.0.1";
         private int port;
         private uint currentLedData = 0;
@@ -36,22 +37,26 @@ namespace MU3Input
             ConnectAsync(ip, port);
             //connectTask?.Wait();
         }
-        public void ConnectAsync(string ip, int port)
+        public async Task ConnectAsync(string ip, int port)
         {
-            if (connecting) return;
+            if (_disposedValue || connecting) return;
             connecting = true;
             try
             {
-                var newClient = new TcpClient(ip, port);
+                var newClient = new TcpClient();
+                await newClient.ConnectAsync(ip, port);
                 networkStream = newClient.GetStream();
                 client = newClient;
                 SetLed(currentLedData);
             }
-            catch (Exception)
+            catch
             {
                 Disconnect();
             }
-            connecting = false;
+            finally
+            {
+                connecting = false;
+            }
         }
         private void Disconnect()
         {
@@ -70,12 +75,21 @@ namespace MU3Input
         {
             while (true)
             {
+                if (_disposedValue) return;
                 if (!IsConnected)
                 {
-                    Reconnect();
+                    Thread.Sleep(100);
                     continue;
                 }
-                int len = networkStream.Read(_inBuffer, 0, 1);
+                int len;
+                try
+                {
+                    len = networkStream.Read(_inBuffer, 0, 1);
+                }
+                catch
+                {
+                    len = 0;
+                }
                 if (len <= 0)
                 {
                     Reconnect();
@@ -171,6 +185,12 @@ namespace MU3Input
             {
                 return;
             }
+        }
+
+        public override void Dispose()
+        {
+            _disposedValue = true;
+            Disconnect();
         }
     }
 }

@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="IOConfig.HomePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:IOConfig"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    xmlns:communityControls="using:CommunityToolkit.WinUI.Controls" 
+    xmlns:winUi="using:CommunityToolkit.WinUI"
+    xmlns:system="using:System"
+    x:Name="Root"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <Page.DataContext>
+        <local:HomeViewModel/>
+    </Page.DataContext>
+    <Page.Resources>
+        <local:VisualButtonMaskVisibilityConverter x:Key="VisualButtonMaskVisibilityConverter"/>
+        <local:VisualButtonPressedConverter x:Key="VisualButtonPressedConverter"/>
+        <local:StatusTextConverter x:Key="StatusTextConverter"/>
+        <local:StatusBrushConverter x:Key="StatusBrushConverter"/>
+        <local:TypeTemplateSelector x:Key="TypeTemplateSelector">
+            <!--TCP-->
+            <local:TypeTemplateSelector.TcpTemplate>
+                <DataTemplate x:DataType="local:ConfigItem">
+                    <ContentControl Margin="0,2,0,2" HorizontalContentAlignment="Stretch">
+                        <communityControls:SettingsExpander
+                            Description="适用于有线连接"
+                            Header="TCP控制器"
+                            HeaderIcon="{winUi:FontIcon Glyph=&#xE703;}">
+                            <StackPanel Orientation="Horizontal"  BorderThickness="1" Spacing="4">
+                                <FontIcon FontFamily="Segoe Fluent Icons" Foreground="{Binding IsConnected,Converter={StaticResource StatusBrushConverter}}" FontSize="6" Glyph="&#xF127;"/>
+                                <TextBlock Text="{Binding IsConnected,Converter={StaticResource StatusTextConverter}}"/>
+                            </StackPanel>
+
+                            <communityControls:SettingsExpander.Items>
+                                <communityControls:SettingsCard Header="端口">
+                                    <TextBox Text="{Binding Param,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                                </communityControls:SettingsCard>
+                                <communityControls:SettingsCard IsClickEnabled="True" Header="作用域" Description="{Binding Scope}" Click="EditScope_OnClick">
+                                    <ContentControl MinHeight="32"/>
+                                </communityControls:SettingsCard>
+                                <communityControls:SettingsCard Header="不再使用此控制器">
+                                    <Button Command="{Binding DataContext.RemoveControllerCommand,ElementName=Root}" CommandParameter="{Binding}" Content="移除" />
+                                </communityControls:SettingsCard>
+                            </communityControls:SettingsExpander.Items>
+                        </communityControls:SettingsExpander>
+                    </ContentControl>
+                </DataTemplate>
+            </local:TypeTemplateSelector.TcpTemplate>
+            <!--UDP-->
+            <local:TypeTemplateSelector.UdpTemplate>
+                <DataTemplate x:DataType="local:ConfigItem">
+                    <ContentControl Margin="0,2,0,2" HorizontalContentAlignment="Stretch">
+                        <communityControls:SettingsExpander
+                            Description="适用于无线连接"
+                            Header="UDP控制器"
+                            HeaderIcon="{winUi:FontIcon Glyph=&#xE703;}">
+                            <StackPanel Orientation="Horizontal"  BorderThickness="1" Spacing="4">
+                                <FontIcon FontFamily="Segoe Fluent Icons" Foreground="{Binding IsConnected,Converter={StaticResource StatusBrushConverter}}" FontSize="6" Glyph="&#xF127;"/>
+                                <TextBlock Text="{Binding IsConnected,Converter={StaticResource StatusTextConverter}}"/>
+                            </StackPanel>
+                            <communityControls:SettingsExpander.Items>
+                                <communityControls:SettingsCard Header="端口">
+                                    <TextBox Text="{Binding Param,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                                </communityControls:SettingsCard>
+                                <communityControls:SettingsCard IsClickEnabled="True" Header="作用域" Description="{Binding Scope}" Click="EditScope_OnClick">
+                                    <ContentControl MinHeight="32"/>
+                                </communityControls:SettingsCard>
+                                <communityControls:SettingsCard Header="不再使用此控制器">
+                                    <Button Command="{Binding DataContext.RemoveControllerCommand,ElementName=Root}" CommandParameter="{Binding}" Content="移除" />
+                                </communityControls:SettingsCard>
+                            </communityControls:SettingsExpander.Items>
+                        </communityControls:SettingsExpander>
+                    </ContentControl>
+                </DataTemplate>
+            </local:TypeTemplateSelector.UdpTemplate>
+            <!--Usbmux-->
+            <local:TypeTemplateSelector.UsbmuxTemplate>
+                <DataTemplate x:DataType="local:ConfigItem">
+                    <ContentControl Margin="0,2,0,2" HorizontalContentAlignment="Stretch">
+                        <communityControls:SettingsExpander
+                            Description="适用于iOS设备有线连接"
+                            Header="Usbmux控制器"
+                            HeaderIcon="{winUi:FontIcon Glyph=&#xE703;}">
+                            <StackPanel Orientation="Horizontal"  BorderThickness="1" Spacing="4">
+                                <FontIcon FontFamily="Segoe Fluent Icons" Foreground="{Binding IsConnected,Converter={StaticResource StatusBrushConverter}}" FontSize="6" Glyph="&#xF127;"/>
+                                <TextBlock Text="{Binding IsConnected,Converter={StaticResource StatusTextConverter}}"/>
+                            </StackPanel>
+                            <communityControls:SettingsExpander.Items>
+                                <communityControls:SettingsCard Header="端口">
+                                    <TextBox Text="{Binding Param,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                                </communityControls:SettingsCard>
+                                <communityControls:SettingsCard IsClickEnabled="True" Header="作用域" Description="{Binding Scope}" Click="EditScope_OnClick">
+                                    <ContentControl MinHeight="32"/>
+                                </communityControls:SettingsCard>
+                                <communityControls:SettingsCard Header="不再使用此控制器">
+                                    <Button Command="{Binding DataContext.RemoveControllerCommand,ElementName=Root}" CommandParameter="{Binding}" Content="移除" />
+                                </communityControls:SettingsCard>
+                            </communityControls:SettingsExpander.Items>
+                        </communityControls:SettingsExpander>
+                    </ContentControl>
+                </DataTemplate>
+            </local:TypeTemplateSelector.UsbmuxTemplate>
+            <!--Keyboard-->
+            <local:TypeTemplateSelector.KeyboardTemplate>
+                <DataTemplate x:DataType="local:ConfigItem">
+                    <ContentControl Margin="0,2,0,2" HorizontalContentAlignment="Stretch">
+                        <communityControls:SettingsExpander
+                            Header="键盘"
+                            HeaderIcon="{winUi:FontIcon Glyph=&#xE765;}">
+                            <communityControls:SettingsExpander.Items>
+                                <communityControls:SettingsCard IsClickEnabled="True" Header="按键设定" Click="KeyboardInputSetting_OnClick">
+                                    <ContentControl MinHeight="32"/>
+                                </communityControls:SettingsCard>
+                                <communityControls:SettingsCard IsClickEnabled="True" Header="作用域" Description="{Binding Scope}" Click="EditScope_OnClick">
+                                    <ContentControl MinHeight="32"/>
+                                </communityControls:SettingsCard>
+                                <communityControls:SettingsCard Header="不再使用此控制器">
+                                    <Button Command="{Binding DataContext.RemoveControllerCommand,ElementName=Root}" CommandParameter="{Binding}" Content="移除" />
+                                </communityControls:SettingsCard>
+                            </communityControls:SettingsExpander.Items>
+                        </communityControls:SettingsExpander>
+                    </ContentControl>
+                </DataTemplate>
+            </local:TypeTemplateSelector.KeyboardTemplate>
+            <!--Hid-->
+            <local:TypeTemplateSelector.HidTemplate>
+                <DataTemplate x:DataType="local:ConfigItem">
+                    <ContentControl Margin="0,2,0,2" HorizontalContentAlignment="Stretch">
+                        <communityControls:SettingsExpander
+                            Description="适用于部分手台"
+                            Header="Hid控制器"
+                            HeaderIcon="{winUi:FontIcon Glyph=&#xE703;}">
+                            <StackPanel Orientation="Horizontal"  BorderThickness="1" Spacing="4">
+                                <FontIcon FontFamily="Segoe Fluent Icons" Foreground="{Binding IsConnected,Converter={StaticResource StatusBrushConverter}}" FontSize="6" Glyph="&#xF127;"/>
+                                <TextBlock Text="{Binding IsConnected,Converter={StaticResource StatusTextConverter}}"/>
+                            </StackPanel>
+                            <communityControls:SettingsExpander.Items>
+                                <communityControls:SettingsCard IsClickEnabled="True" Header="作用域" Description="{Binding Scope}" Click="EditScope_OnClick">
+                                    <ContentControl MinHeight="32"/>
+                                </communityControls:SettingsCard>
+                                <communityControls:SettingsCard Header="不再使用此控制器">
+                                    <Button Command="{Binding DataContext.RemoveControllerCommand,ElementName=Root}" CommandParameter="{Binding}" Content="移除" />
+                                </communityControls:SettingsCard>
+                            </communityControls:SettingsExpander.Items>
+                        </communityControls:SettingsExpander>
+                    </ContentControl>
+                </DataTemplate>
+            </local:TypeTemplateSelector.HidTemplate>
+        </local:TypeTemplateSelector>
+        <Style TargetType="Border" x:Key="VirtualButtonStyle">
+            <Setter Property="BorderBrush" Value="Black" />
+            <Setter Property="BorderThickness" Value="2" />
+            <Setter Property="CornerRadius" Value="8" />
+        </Style>
+        <Style TargetType="Border" x:Key="VirtualButtonMaskStyle">
+            <Setter Property="Background" Value="#66000000" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="VerticalAlignment" Value="Stretch" />
+        </Style>
+    </Page.Resources>
+    <ScrollView>
+        <StackPanel Margin="24,4" Spacing="4">
+            <StackPanel.ChildrenTransitions>
+                <EntranceThemeTransition FromVerticalOffset="50" />
+                <RepositionThemeTransition IsStaggeringEnabled="False" />
+            </StackPanel.ChildrenTransitions>
+            <Viewbox Stretch="Uniform" MaxWidth="720">
+                <Grid Width="600" Height="160"
+                      HorizontalAlignment="Stretch"
+                      ColumnDefinitions="*,2*,2*,2*,*,2*,2*,2*,*" 
+                      RowDefinitions="*,*">
+                    <Border Style="{StaticResource VirtualButtonStyle}" Margin="4,72,12,16" Grid.Column="0" Grid.RowSpan="2" Background="#DDDDDD">
+                        <Border Style="{StaticResource VirtualButtonMaskStyle}" Visibility="{Binding Left,Converter={StaticResource VisualButtonMaskVisibilityConverter}, ConverterParameter=3}"/>
+                    </Border>
+                    <Border Style="{StaticResource VirtualButtonStyle}" Margin="8" Grid.Column="1" Grid.Row="1" Background="#DDDDDD">
+                        <Border Style="{StaticResource VirtualButtonMaskStyle}" Visibility="{Binding Left,Converter={StaticResource VisualButtonMaskVisibilityConverter}, ConverterParameter=0}"/>
+                    </Border>
+                    <Border Style="{StaticResource VirtualButtonStyle}" Margin="8" Grid.Column="2" Grid.Row="1" Background="#DDDDDD">
+                        <Border Style="{StaticResource VirtualButtonMaskStyle}" Visibility="{Binding Left,Converter={StaticResource VisualButtonMaskVisibilityConverter}, ConverterParameter=1}"/>
+                    </Border>
+                    <Border Style="{StaticResource VirtualButtonStyle}" Margin="8" Grid.Column="3" Grid.Row="1" Background="#DDDDDD">
+                        <Border Style="{StaticResource VirtualButtonMaskStyle}" Visibility="{Binding Left,Converter={StaticResource VisualButtonMaskVisibilityConverter}, ConverterParameter=2}"/>
+                    </Border>
+                    <Border Style="{StaticResource VirtualButtonStyle}" Margin="8" Grid.Column="5" Grid.Row="1" Background="#DDDDDD">
+                        <Border Style="{StaticResource VirtualButtonMaskStyle}" Visibility="{Binding Right,Converter={StaticResource VisualButtonMaskVisibilityConverter}, ConverterParameter=0}"/>
+                    </Border>
+                    <Border Style="{StaticResource VirtualButtonStyle}" Margin="8" Grid.Column="6" Grid.Row="1" Background="#DDDDDD">
+                        <Border Style="{StaticResource VirtualButtonMaskStyle}" Visibility="{Binding Right,Converter={StaticResource VisualButtonMaskVisibilityConverter}, ConverterParameter=1}"/>
+                    </Border>
+                    <Border Style="{StaticResource VirtualButtonStyle}" Margin="8" Grid.Column="7" Grid.Row="1" Background="#DDDDDD">
+                        <Border Style="{StaticResource VirtualButtonMaskStyle}" Visibility="{Binding Right,Converter={StaticResource VisualButtonMaskVisibilityConverter}, ConverterParameter=2}"/>
+                    </Border>
+                    <Border Style="{StaticResource VirtualButtonStyle}" Margin="12,72,4,16" Grid.Column="8" Grid.RowSpan="2" Background="#DDDDDD">
+                        <Border Style="{StaticResource VirtualButtonMaskStyle}" Visibility="{Binding Right,Converter={StaticResource VisualButtonMaskVisibilityConverter}, ConverterParameter=3}"/>
+                    </Border>
+                    <Border Style="{StaticResource VirtualButtonStyle}" Margin="64,24" Grid.Column="1" Grid.ColumnSpan="2" Background="#FF455B">
+                        <Border Style="{StaticResource VirtualButtonMaskStyle}" Visibility="{Binding Left,Converter={StaticResource VisualButtonMaskVisibilityConverter}, ConverterParameter=4}"/>
+                    </Border>
+                    <Border Style="{StaticResource VirtualButtonStyle}" Margin="64,24" Grid.Column="6" Grid.ColumnSpan="2" Background="#FFD545">
+                        <Border Style="{StaticResource VirtualButtonMaskStyle}" Visibility="{Binding Right,Converter={StaticResource VisualButtonMaskVisibilityConverter}, ConverterParameter=4}"/>
+                    </Border>
+                    <Slider Margin="0,24" Grid.Column="3" IsTabStop="False" Grid.ColumnSpan="3" Minimum="-32768" Maximum="32767" StepFrequency="1" SmallChange="10" Value="{Binding Lever}" Foreground="Transparent"/>
+                    <Grid Grid.Column="3" Grid.ColumnSpan="3" Background="Transparent"/>
+                </Grid>
+            </Viewbox>
+            <Grid MaxWidth="720">
+                <StackPanel Orientation="Horizontal" Margin="4, 0">
+                    <CheckBox IsTabStop="False" IsChecked="{Binding OpButton,Converter={StaticResource VisualButtonPressedConverter}, ConverterParameter=0,Mode=TwoWay}">Test</CheckBox>
+                    <CheckBox IsTabStop="False" IsChecked="{Binding OpButton,Converter={StaticResource VisualButtonPressedConverter}, ConverterParameter=1,Mode=TwoWay}">Service</CheckBox>
+                    <CheckBox IsTabStop="False" IsChecked="{Binding OpButton,Converter={StaticResource VisualButtonPressedConverter}, ConverterParameter=2,Mode=TwoWay}">Coin</CheckBox>
+                </StackPanel>
+                <Grid Background="Transparent"/>
+            </Grid>
+            <communityControls:SettingsCard Header="Aime"
+                                            HeaderIcon="{winUi:FontIcon Glyph=&#xE8C7;}"
+                                            IsActionIconVisible="False"
+                                            IsClickEnabled="False"
+                                            Content="{Binding Aime}"/>
+            <TextBlock Margin="0,12,0,8" Style="{ThemeResource BodyStrongTextBlockStyle}">控制器</TextBlock>
+            <ItemsControl x:Name="Controllers" ItemsSource="{Binding IOConfigs}" ItemTemplateSelector="{StaticResource TypeTemplateSelector}" Margin="0,-2,0,-2">
+                <ItemsControl.ItemContainerTransitions>
+                    <EntranceThemeTransition FromVerticalOffset="50" />
+                    <RepositionThemeTransition IsStaggeringEnabled="False" />
+                </ItemsControl.ItemContainerTransitions>
+            </ItemsControl>
+            <communityControls:SettingsCard Header="使用其它控制器"
+                                            HeaderIcon="{winUi:FontIcon Glyph=&#xE710;}">
+                <Button Style="{StaticResource AccentButtonStyle}" 
+                        Click="AddController_OnClick"
+                        Content="添加控制器" />
+            </communityControls:SettingsCard>
+        </StackPanel>
+    </ScrollView>
+</Page>

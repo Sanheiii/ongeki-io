@@ -1,17 +1,5 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using Newtonsoft.Json.Linq;
-
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+﻿using System.Text;
+using System.Text.Json.Serialization;
 
 namespace MU3Input
 {
@@ -19,8 +7,8 @@ namespace MU3Input
     {
         private KeyboardIOConfig config;
         public override OutputData Data => GetData();
-
-        public override bool IsConnected => true;
+        private bool _isConnected = true;
+        public override bool IsConnected => _isConnected;
 
         public KeyboardIO(KeyboardIOConfig param)
         {
@@ -31,15 +19,16 @@ namespace MU3Input
 
         public override void SetLed(uint data) { }
 
+        public override void Dispose()
+        {
+            _isConnected = false;
+        }
+
 
         StringBuilder sb = new StringBuilder();
-        bool coinAvailable = true;
         private OutputData GetData()
         {
-            IntPtr handle = User32.GetForegroundWindow();
-            User32.GetWindowText(handle, sb, 16);
-            string windowText = sb.ToString();
-            if (windowText != "Otoge" && windowText != "Ongeki IO Debug")
+            if (!Utils.IsForeground())
             {
                 return new OutputData() { Buttons = new byte[10], Aime = new Aime() { Data = new byte[18] } };
             }
@@ -60,21 +49,6 @@ namespace MU3Input
             byte testPressed = Pressed(config.Test);
             byte servicePressed = Pressed(config.Service);
             byte coinPressed = Pressed(config.Coin);
-            if (coinPressed > 0)
-            {
-                if (coinAvailable)
-                {
-                    coinAvailable = false;
-                }
-                else
-                {
-                    coinPressed = 0;
-                }
-            }
-            else
-            {
-                coinAvailable = true;
-            }
             OptButtons optButtons = (OptButtons)(testPressed << 0 | servicePressed << 1 | coinPressed << 2);
             Aime aime = new Aime()
             {
@@ -94,27 +68,32 @@ namespace MU3Input
                 Aime = aime
             };
         }
-        private byte Pressed(Keys key)
+        private byte Pressed(int key)
         {
-
             return User32.GetAsyncKeyState(key) == 0 ? (byte)0 : (byte)1;
         }
-        public class KeyboardIOConfig
-        {
-            public Keys L1 { get; set; } = (Keys)(-1);
-            public Keys L2 { get; set; } = (Keys)(-1);
-            public Keys L3 { get; set; } = (Keys)(-1);
-            public Keys LSide { get; set; } = (Keys)(-1);
-            public Keys LMenu { get; set; } = (Keys)(-1);
-            public Keys R1 { get; set; } = (Keys)(-1);
-            public Keys R2 { get; set; } = (Keys)(-1);
-            public Keys R3 { get; set; } = (Keys)(-1);
-            public Keys RSide { get; set; } = (Keys)(-1);
-            public Keys RMenu { get; set; } = (Keys)(-1);
-            public Keys Test { get; set; } = (Keys)(-1);
-            public Keys Service { get; set; } = (Keys)(-1);
-            public Keys Coin { get; set; } = (Keys)(-1);
-            public Keys Scan { get; set; } = (Keys)(-1);
-        }
+    }
+    public class KeyboardIOConfig
+    {
+        public int L1 { get; set; } = -1;
+        public int L2 { get; set; } = -1;
+        public int L3 { get; set; } = -1;
+        public int LSide { get; set; } = -1;
+        public int LMenu { get; set; } = -1;
+        public int R1 { get; set; } = -1;
+        public int R2 { get; set; } = -1;
+        public int R3 { get; set; } = -1;
+        public int RSide { get; set; } = -1;
+        public int RMenu { get; set; } = -1;
+        public int Test { get; set; } = -1;
+        public int Service { get; set; } = -1;
+        public int Coin { get; set; } = -1;
+        public int Scan { get; set; } = -1;
+    }
+
+    [JsonSourceGenerationOptions(WriteIndented = true)]
+    [JsonSerializable(typeof(KeyboardIOConfig))]
+    public partial class KeyboardIOConfigContext : JsonSerializerContext
+    {
     }
 }
