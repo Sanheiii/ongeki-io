@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net.Sockets;
 using System.Threading;
+using System.Timers;
 
 namespace MU3Input
 {
@@ -19,15 +20,26 @@ namespace MU3Input
         private TcpClient client;
         private NetworkStream networkStream;
         protected OutputData data;
+        System.Timers.Timer timer = new System.Timers.Timer(1500)
+        {
+            AutoReset = false
+        };
 
         public TcpIO(int port)
         {
             this.port = port;
             data = new OutputData() { Buttons = new byte[10], Aime = new Aime() { Data = new byte[18] } };
             new Thread(PollThread).Start();
+            timer.Elapsed += Timer_Elapsed;
 
         }
-        public override bool IsConnected => client?.Connected ?? false;
+        private void Timer_Elapsed(object? sender, ElapsedEventArgs e)
+        {
+            isConnected = false;
+        }
+
+        bool isConnected = false;
+        public override bool IsConnected => isConnected;
         public override OutputData Data => data;
         // 重连
         public override void Reconnect()
@@ -60,7 +72,7 @@ namespace MU3Input
         }
         private void Disconnect()
         {
-            if (IsConnected)
+            if (client?.Connected ?? false)
             {
                 var tmpClient = client;
                 var tmpStream = networkStream;
@@ -76,7 +88,7 @@ namespace MU3Input
             while (true)
             {
                 if (_disposedValue) return;
-                if (!IsConnected)
+                if (!client?.Connected ?? false)
                 {
                     Thread.Sleep(100);
                     continue;
@@ -154,6 +166,9 @@ namespace MU3Input
             else if (type == MessageType.Hello && networkStream.Read(_inBuffer, 0, 1) > 0)
             {
                 networkStream.Write(new byte[] { (byte)MessageType.Hello, _inBuffer[0] }, 0, 2);
+                isConnected = true;
+                timer.Stop();
+                timer.Start();
             }
         }
 
@@ -161,7 +176,7 @@ namespace MU3Input
         {
             try
             {
-                if (!IsConnected)
+                if (!client?.Connected ?? false)
                     return;
                 networkStream.Write(new byte[] { (byte)MessageType.SetLever }.Concat(BitConverter.GetBytes(lever)).ToArray(), 0, 3);
             }
@@ -177,7 +192,7 @@ namespace MU3Input
             {
                 // 缓存led数据将其设置到新连接的设备
                 currentLedData = data;
-                if (!IsConnected)
+                if (!client?.Connected ?? false)
                     return;
                 networkStream.Write(new byte[] { (byte)MessageType.SetLed }.Concat(BitConverter.GetBytes(data)).ToArray(), 0, 5);
             }
@@ -190,6 +205,8 @@ namespace MU3Input
         public override void Dispose()
         {
             _disposedValue = true;
+            timer.Stop();
+            timer.Elapsed -= Timer_Elapsed;
             Disconnect();
         }
     }

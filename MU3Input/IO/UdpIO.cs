@@ -6,6 +6,7 @@ using System.Net.Sockets;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Threading;
+using System.Timers;
 
 namespace MU3Input
 {
@@ -31,11 +32,12 @@ namespace MU3Input
         }
 
         // 一段时间没收到心跳包自动断开以接受新的连接
-        private void Timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        private void Timer_Elapsed(object? sender, ElapsedEventArgs e)
         {
             isConnected = false;
             savedEP = null;
         }
+
 
         bool isConnected = false;
         public override bool IsConnected => isConnected;
@@ -145,6 +147,8 @@ namespace MU3Input
         public override void Dispose()
         {
             _disposedValue = true;
+            timer.Stop();
+            timer.Elapsed -= Timer_Elapsed;
             client?.Dispose();
         }
     }

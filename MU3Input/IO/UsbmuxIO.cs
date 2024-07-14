@@ -32,7 +32,7 @@ public class UsbmuxIO : IO
     public override void Reconnect()
     {
         Disconnect();
-        Connect();
+        //Connect();
     }
     public void Disconnect()
     {
@@ -62,6 +62,7 @@ public class UsbmuxIO : IO
             if(_disposedValue) return;
             if (!IsConnected)
             {
+                Task.Run(Connect);
                 Thread.Sleep(10);
                 continue;
             }
@@ -69,7 +70,7 @@ public class UsbmuxIO : IO
             int len = 0;
             if (!Receive(connection, _inBuffer, 1, ref len))
             {
-                Reconnect();
+                Disconnect();
                 continue;
             }
             Receive((MessageType)_inBuffer[0]);
