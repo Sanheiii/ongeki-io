@@ -52,6 +52,7 @@ public class UsbmuxIO : IO
                 break;
             }
         }
+
         connecting = false;
     }
     private byte[] _inBuffer = new byte[32];
@@ -177,8 +178,12 @@ public class UsbmuxIO : IO
 
     private Socket? ConnectByUdid(string udid)
     {
-        var device = Usbmux.GetDevice(udid);
-        return device?.Connect(remotePort);
+        try
+        {
+            var device = Usbmux.GetDevice(udid);
+            return device?.Connect(remotePort);
+        }
+        catch { return null; }
     }
 
     private bool Receive(Socket connection, byte[] buffer, int size, ref int len)

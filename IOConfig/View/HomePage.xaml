@@ -17,6 +17,7 @@
     </Page.DataContext>
     <Page.Resources>
         <local:VisualButtonMaskVisibilityConverter x:Key="VisualButtonMaskVisibilityConverter"/>
+        <local:UInt16Converter x:Key="UInt16Converter"/>
         <local:VisualButtonPressedConverter x:Key="VisualButtonPressedConverter"/>
         <local:StatusTextConverter x:Key="StatusTextConverter"/>
         <local:StatusBrushConverter x:Key="StatusBrushConverter"/>
@@ -36,7 +37,7 @@
 
                             <communityControls:SettingsExpander.Items>
                                 <communityControls:SettingsCard Header="端口">
-                                    <TextBox Text="{Binding Param,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                                    <TextBox Text="{Binding Param,Mode=TwoWay,Converter={StaticResource UInt16Converter},UpdateSourceTrigger=PropertyChanged}"/>
                                 </communityControls:SettingsCard>
                                 <communityControls:SettingsCard IsClickEnabled="True" Header="作用域" Description="{Binding Scope}" Click="EditScope_OnClick">
                                     <ContentControl MinHeight="32"/>
@@ -63,7 +64,7 @@
                             </StackPanel>
                             <communityControls:SettingsExpander.Items>
                                 <communityControls:SettingsCard Header="端口">
-                                    <TextBox Text="{Binding Param,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                                    <TextBox Text="{Binding Param,Mode=TwoWay,Converter={StaticResource UInt16Converter},UpdateSourceTrigger=PropertyChanged}"/>
                                 </communityControls:SettingsCard>
                                 <communityControls:SettingsCard IsClickEnabled="True" Header="作用域" Description="{Binding Scope}" Click="EditScope_OnClick">
                                     <ContentControl MinHeight="32"/>
@@ -90,7 +91,7 @@
                             </StackPanel>
                             <communityControls:SettingsExpander.Items>
                                 <communityControls:SettingsCard Header="端口">
-                                    <TextBox Text="{Binding Param,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                                    <TextBox Text="{Binding Param,Mode=TwoWay,Converter={StaticResource UInt16Converter},UpdateSourceTrigger=PropertyChanged}"/>
                                 </communityControls:SettingsCard>
                                 <communityControls:SettingsCard IsClickEnabled="True" Header="作用域" Description="{Binding Scope}" Click="EditScope_OnClick">
                                     <ContentControl MinHeight="32"/>

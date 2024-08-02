@@ -70,13 +70,13 @@ namespace IOConfig
             else if (controllerType is IOType.Tcp) ViewModel.IOConfigs.Add(new ConfigItem
             {
                 Type = IOType.Tcp,
-                Param = JsonValue.Create((ushort)4355),
+                Param = JsonValue.Create((ushort)4354),
                 Scope = Scope.All
             });
             else if (controllerType is IOType.Usbmux) ViewModel.IOConfigs.Add(new ConfigItem
             {
                 Type = IOType.Usbmux,
-                Param = JsonValue.Create((ushort)4355),
+                Param = JsonValue.Create((ushort)4354),
                 Scope = Scope.All
             });
             else if (controllerType is IOType.Keyboard) ViewModel.IOConfigs.Add(new ConfigItem

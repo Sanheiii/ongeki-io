@@ -101,4 +101,19 @@ namespace IOConfig
             throw new NotImplementedException("Dan't set button status");
         }
     }
+    public class UInt16Converter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, string language)
+        {
+            if (value is ushort port) return port.ToString();
+            return "";
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
+        {
+            if (value is string str && ushort.TryParse(str, out ushort port)) return port;
+            else return 0;
+        }
+    }
+
 }
