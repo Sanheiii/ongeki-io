@@ -59,6 +59,11 @@ namespace MU3Input
                 await newClient.ConnectAsync(ip, port);
                 networkStream = newClient.GetStream();
                 client = newClient;
+
+                isConnected = true;
+                timer.Stop();
+                timer.Start();
+
                 SetLed(currentLedData);
             }
             catch
@@ -88,7 +93,7 @@ namespace MU3Input
             while (true)
             {
                 if (_disposedValue) return;
-                if (!client?.Connected ?? false)
+                if (!(client?.Connected ?? false))
                 {
                     Thread.Sleep(100);
                     continue;
