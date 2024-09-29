@@ -17,10 +17,12 @@
     </Page.DataContext>
     <Page.Resources>
         <local:VisualButtonMaskVisibilityConverter x:Key="VisualButtonMaskVisibilityConverter"/>
-        <local:UInt16Converter x:Key="UInt16Converter"/>
         <local:VisualButtonPressedConverter x:Key="VisualButtonPressedConverter"/>
         <local:StatusTextConverter x:Key="StatusTextConverter"/>
         <local:StatusBrushConverter x:Key="StatusBrushConverter"/>
+        <local:Int32Converter x:Key="Int32Converter"/>
+        <local:UInt16Converter x:Key="UInt16Converter"/>
+        <local:UInt32Converter x:Key="UInt32Converter"/>
         <local:TypeTemplateSelector x:Key="TypeTemplateSelector">
             <!--TCP-->
             <local:TypeTemplateSelector.TcpTemplate>
@@ -139,6 +141,18 @@
                                 <TextBlock Text="{Binding IsConnected,Converter={StaticResource StatusTextConverter}}"/>
                             </StackPanel>
                             <communityControls:SettingsExpander.Items>
+                                <communityControls:SettingsCard Header="VID" DataContext="{Binding Param}">
+                                    <TextBox Text="{Binding Vid,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged,Converter={StaticResource UInt32Converter}}"/>
+                                </communityControls:SettingsCard>
+                                <communityControls:SettingsCard Header="PID" DataContext="{Binding Param}">
+                                    <TextBox Text="{Binding Pid,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged,Converter={StaticResource UInt32Converter}}"/>
+                                </communityControls:SettingsCard>
+                                <communityControls:SettingsCard Header="UsagePage" DataContext="{Binding Param}">
+                                    <TextBox Text="{Binding UsagePage,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged,Converter={StaticResource Int32Converter}}"/>
+                                </communityControls:SettingsCard>
+                                <communityControls:SettingsCard Header="Usage" DataContext="{Binding Param}">
+                                    <TextBox Text="{Binding Usage,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged,Converter={StaticResource Int32Converter}}"/>
+                                </communityControls:SettingsCard>
                                 <communityControls:SettingsCard IsClickEnabled="True" Header="作用域" Description="{Binding Scope}" Click="EditScope_OnClick">
                                     <ContentControl MinHeight="32"/>
                                 </communityControls:SettingsCard>

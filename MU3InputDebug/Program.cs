@@ -1,7 +1,5 @@
 ﻿using MU3Input;
 
-using System.Diagnostics.Metrics;
-
 namespace MU3InputDebug
 {
     internal class Program
@@ -9,6 +7,7 @@ namespace MU3InputDebug
         static void Main(string[] args)
         {
             Mu3IO.Init();
+            AimeIO.Init();
             while (true)
             {
                 UpdateStates();

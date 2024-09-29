@@ -101,19 +101,35 @@ namespace IOConfig
             throw new NotImplementedException("Dan't set button status");
         }
     }
-    public class UInt16Converter : IValueConverter
+    public abstract class IntegerConvetcer<T> : IValueConverter where T : INumber<T>
     {
+        public abstract T DefaultValue { get; }
         public object Convert(object value, Type targetType, object parameter, string language)
         {
-            if (value is ushort port) return port.ToString();
-            return "";
+            return value;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, string language)
         {
-            if (value is string str && ushort.TryParse(str, out ushort port)) return port;
-            else return 0;
+            if (T.TryParse(value.ToString(), NumberStyles.Integer, null, out T result))
+            {
+                return result;
+            };
+            return DefaultValue;
         }
+    }
+
+    public class Int32Converter : IntegerConvetcer<int>
+    {
+        public override int DefaultValue => -1;
+    }
+    public class UInt32Converter : IntegerConvetcer<uint>
+    {
+        public override uint DefaultValue => 0;
+    }
+    public class UInt16Converter : IntegerConvetcer<ushort>
+    {
+        public override ushort DefaultValue => 0;
     }
 
 }

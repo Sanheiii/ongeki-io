@@ -88,7 +88,7 @@ namespace IOConfig
             else if (controllerType is IOType.Hid) ViewModel.IOConfigs.Add(new ConfigItem
             {
                 Type = IOType.Hid,
-                Param = null,
+                Param = new HidParam(),
                 Scope = Scope.All
             });
         }

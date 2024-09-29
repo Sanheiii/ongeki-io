@@ -66,7 +66,21 @@ namespace IOConfig
 
         public void Save(string path)
         {
-            File.WriteAllText(path, JsonSerializer.Serialize(this, new JsonSerializerOptions{WriteIndented = true}));
+            var dispatcherQueue = App.StartupWindow.DispatcherQueue;
+
+            File.WriteAllText(path, JsonSerializer.Serialize(this, new JsonSerializerOptions { WriteIndented = true }));
+
+            if (dispatcherQueue.HasThreadAccess)
+            {
+                Reload();
+            }
+            else
+            {
+                dispatcherQueue.TryEnqueue(Reload);
+            }
+        }
+        void Reload()
+        {
             Mu3IO.Init();
             AimeIO.Init();
         }
@@ -180,6 +194,18 @@ namespace IOConfig
         private int scan  = -1;
     }
 
+    public partial class HidParam : ObservableObject
+    {
+        [ObservableProperty]
+        private uint vid = 0x2341;
+        [ObservableProperty]
+        private uint pid = 0x8036;
+        [ObservableProperty]
+        private int usagePage = -1;
+        [ObservableProperty]
+        private int usage = -1;
+    }
+
     [Flags]
     public enum Scope
     {
@@ -226,6 +252,7 @@ namespace IOConfig
                     IOType.Tcp => jio.GetProperty("Param").Deserialize<ushort>(),
                     IOType.Udp => jio.GetProperty("Param").Deserialize<ushort>(),
                     IOType.Usbmux => jio.GetProperty("Param").Deserialize<ushort>(),
+                    IOType.Hid => jio.GetProperty("Param").Deserialize<HidParam>(),
                     _ => jio.GetProperty("Param").Deserialize<object>()
                 };
                 configItem.Scope = jio.GetProperty("Scope").Deserialize<Scope>(options);

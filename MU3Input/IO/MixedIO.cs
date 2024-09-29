@@ -64,7 +64,7 @@ namespace MU3Input
             switch (type)
             {
                 case IOType.Hid:
-                    return new HidIO();
+                    return new HidIO(JsonSerializer.Deserialize(param, HidIOConfigContext.Default.HidIOConfig));
                 case IOType.Udp:
                     return new UdpIO(param.GetValue<int>());
                 case IOType.Tcp:

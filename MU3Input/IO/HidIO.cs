@@ -1,21 +1,23 @@
 ﻿using SimpleHID.Raw;
 
+using System.Text.Json.Serialization;
+
 namespace MU3Input
 {
     public class HidIO : IO
     {
+        private HidIOConfig config;
         protected int _openCount = 0;
         private byte[] _inBuffer = new byte[64];
         private readonly SimpleRawHID _hid = new SimpleRawHID();
-        private const ushort VID = 0x2341;
-        private const ushort PID = 0x8036;
         protected OutputData data;
         private bool reconnecting = false;
         bool _disposedValue = false;
 
 
-        public HidIO()
+        public HidIO(HidIOConfig param)
         {
+            config = param;
             data = new OutputData() { Buttons = new byte[10], Aime = new Aime() { Data = new byte[18] } };
             Reconnect();
             new Thread(PollThread).Start();
@@ -30,7 +32,7 @@ namespace MU3Input
             if (IsConnected)
                 _hid.Close();
 
-            _openCount = _hid.Open(1, VID, PID);
+            _openCount = _hid.Open(1, config.Vid, config.Pid, config.UsagePage, config.Usage);
             reconnecting = false;
         }
 
@@ -120,7 +122,15 @@ namespace MU3Input
     }
     public class HidIOConfig
     {
-        public short LeverLeft { get; set; } = short.MaxValue;
-        public short LeverRight { get; set; } = short.MinValue;
+        public uint Vid = 0x2341;
+        public uint Pid = 0x8036;
+        public int UsagePage = -1;
+        public int Usage = -1;
+    }
+
+    [JsonSourceGenerationOptions(WriteIndented = true)]
+    [JsonSerializable(typeof(HidIOConfig))]
+    public partial class HidIOConfigContext : JsonSerializerContext
+    {
     }
 }
