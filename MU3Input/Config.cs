@@ -17,17 +17,17 @@ namespace MU3Input
             Config res;
             var directoryName = Directory.GetCurrentDirectory();
             configPath = Path.Combine(directoryName, "mu3input_config.json");
-            if (File.Exists(configPath))
+
+            try
             {
-                res = JsonSerializer.Deserialize(File.ReadAllText(configPath), ConfigContext.Default.Config);
+                return JsonSerializer.Deserialize(File.ReadAllText(configPath), ConfigContext.Default.Config);
             }
-            else
+            catch(Exception ex) when(ex is JsonException or FileNotFoundException)
             {
                 res = GetDefault();
                 res.Save(configPath);
+                return res;
             }
-
-            return res;
         }
 
         private static Config GetDefault()
