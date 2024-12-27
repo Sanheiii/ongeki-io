@@ -28,10 +28,10 @@ namespace MU3Input
         StringBuilder sb = new StringBuilder();
         private OutputData GetData()
         {
-            if (!Utils.IsForeground())
-            {
-                return new OutputData() { Buttons = new byte[10], Aime = new Aime() { Data = new byte[18] } };
-            }
+            //if (!Utils.IsForeground())
+            //{
+            //    return new OutputData() { Buttons = new byte[10], Aime = new Aime() { Data = new byte[18] } };
+            //}
 
             byte[] buttons = new byte[] {
                 Pressed(config.L1),
