@@ -122,10 +122,10 @@ namespace MU3Input
     }
     public class HidIOConfig
     {
-        public uint Vid = 0x2341;
-        public uint Pid = 0x8036;
-        public int UsagePage = -1;
-        public int Usage = -1;
+        public uint Vid { get; set; } = 0x2341;
+        public uint Pid { get; set; } = 0x8036;
+        public int UsagePage { get; set; } = -1;
+        public int Usage { get; set; } = -1;
     }
 
     [JsonSourceGenerationOptions(WriteIndented = true)]
