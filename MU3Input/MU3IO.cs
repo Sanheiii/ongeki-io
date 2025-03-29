@@ -57,7 +57,7 @@ namespace MU3Input
 #if RELEASE
         [UnmanagedCallersOnly(EntryPoint = "mu3_io_get_opbtns", CallConvs = [typeof(CallConvCdecl)])]
 #endif
-        public static unsafe void GetOpButtons(byte *opbtn)
+        public static unsafe void GetOpButtons(byte* opbtn)
         {
             *opbtn = (byte)IO.OptButtonsStatus;
         }
@@ -65,7 +65,7 @@ namespace MU3Input
 #if RELEASE
         [UnmanagedCallersOnly(EntryPoint = "mu3_io_get_gamebtns", CallConvs = [typeof(CallConvCdecl)])]
 #endif
-        public static unsafe void GetGameButtons(byte *left, byte *right)
+        public static unsafe void GetGameButtons(byte* left, byte* right)
         {
             *left = IO.LeftButton;
             *right = IO.RightButton;
@@ -74,7 +74,7 @@ namespace MU3Input
 #if RELEASE
         [UnmanagedCallersOnly(EntryPoint = "mu3_io_get_lever", CallConvs = [typeof(CallConvCdecl)])]
 #endif
-        public static unsafe void GetLever(short *pos)
+        public static unsafe void GetLever(short* pos)
         {
             *pos = IO.Lever;
         }
@@ -103,5 +103,28 @@ namespace MU3Input
             return IO.Items.ElementAtOrDefault(index).Key?.IsConnected ?? false;
         }
 
+#if RELEASE
+        [UnmanagedCallersOnly(EntryPoint = "mu3_io_led_init", CallConvs = [typeof(CallConvCdecl)])]
+#endif
+        public static uint InitLed()
+        {
+            return 0;
+        }
+
+#if RELEASE
+        [UnmanagedCallersOnly(EntryPoint = "mu3_io_led_set_colors", CallConvs = [typeof(CallConvCdecl)])]
+#endif
+        public static uint LedSetColors(uint board, uint data)
+        {
+            if (board == 1)
+            {
+                IO.SetLed(data);
+                return 0;
+            }
+            else
+            {
+                return 0;
+            }
+        }
     }
 }
