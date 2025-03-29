@@ -81,8 +81,8 @@ namespace MU3Input
             Items.Add(io, part);
         }
 
-        private uint currentLedData = 0;
-        public override void SetLed(uint data)
+        private byte[] currentLedData = new byte[18];
+        public override void SetLed(byte[] data)
         {
             currentLedData = data;
             foreach (IO io in Items.Keys) io.SetLed(currentLedData);

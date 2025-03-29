@@ -15,7 +15,7 @@ namespace MU3Input
         private bool _disposedValue = false;
         private string ip = "127.0.0.1";
         private int port;
-        private uint currentLedData = 0;
+        private byte[] currentLedData = new byte[18] { 0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
         private bool connecting = false;
         private TcpClient client;
         private NetworkStream networkStream;
@@ -191,7 +191,7 @@ namespace MU3Input
             }
         }
 
-        public override unsafe void SetLed(uint data)
+        public override unsafe void SetLed(byte[] data)
         {
             try
             {
@@ -199,7 +199,7 @@ namespace MU3Input
                 currentLedData = data;
                 if (!client?.Connected ?? false)
                     return;
-                networkStream.Write(new byte[] { (byte)MessageType.SetLed }.Concat(BitConverter.GetBytes(data)).ToArray(), 0, 5);
+                networkStream.Write(new byte[] { (byte)MessageType.SetLed }.Concat(data).ToArray(), 0, 19);
             }
             catch
             {

@@ -27,8 +27,8 @@ namespace MU3Input
         public byte Type;
         public byte LedBrightness;
 
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 10)]
-        public fixed byte LedColors[3 * 10];
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 6)]
+        public fixed byte LedColors[3 * 6];
     }
 
     public abstract class IO : IDisposable
@@ -101,7 +101,7 @@ namespace MU3Input
 
         public abstract bool IsConnected { get; }
         public abstract void Reconnect();
-        public abstract void SetLed(uint data);
+        public abstract void SetLed(byte[] data);
         public abstract void Dispose();
     }
     [Flags]

@@ -153,8 +153,8 @@ public class UsbmuxIO : IO
         }
     }
 
-    private uint currentLedData = 0;
-    public override void SetLed(uint data)
+    private byte[] currentLedData = new byte[18];
+    public override void SetLed(byte[] data)
     {
         try
         {
@@ -163,7 +163,7 @@ public class UsbmuxIO : IO
             if (!IsConnected)
                 return;
             int sendBytes = 0;
-            Send(connection, new byte[] { (byte)MessageType.SetLed }.Concat(BitConverter.GetBytes(data)).ToArray(), 5, ref sendBytes);
+            Send(connection, new byte[] { (byte)MessageType.SetLed }.Concat(data).ToArray(), 19, ref sendBytes);
         }
         catch
         {

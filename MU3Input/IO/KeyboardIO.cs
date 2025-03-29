@@ -17,7 +17,7 @@ namespace MU3Input
 
         public override void Reconnect() { }
 
-        public override void SetLed(uint data) { }
+        public override void SetLed(byte[] data) { }
 
         public override void Dispose()
         {

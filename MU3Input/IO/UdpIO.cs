@@ -13,7 +13,7 @@ namespace MU3Input
     public class UdpIO : IO
     {
         private bool _disposedValue = false;
-        uint currentLedData = 0;
+        byte[] currentLedData = new byte[18];
         UdpClient client;
         IPEndPoint savedEP;
         IPEndPoint remoteEP = new IPEndPoint(IPAddress.Any, 0);
@@ -135,12 +135,12 @@ namespace MU3Input
             }
         }
 
-        public override unsafe void SetLed(uint data)
+        public override unsafe void SetLed(byte[] data)
         {
             currentLedData = data;
             if (savedEP != null)
             {
-                client?.SendAsync(new byte[] { (byte)MessageType.SetLed }.Concat(BitConverter.GetBytes(data)).ToArray(), 5, savedEP);
+                client?.SendAsync(new byte[] { (byte)MessageType.SetLed }.Concat(data).ToArray(), 19, savedEP);
             }
         }
 

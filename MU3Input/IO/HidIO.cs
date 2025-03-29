@@ -9,7 +9,7 @@ namespace MU3Input
         private HidIOConfig config;
         protected int _openCount = 0;
         private byte[] _inBuffer = new byte[64];
-        private readonly SimpleRawHID _hid = new SimpleRawHID();
+        private SimpleRawHID? _hid = new SimpleRawHID();
         protected OutputData data;
         private bool reconnecting = false;
         bool _disposedValue = false;
@@ -20,20 +20,23 @@ namespace MU3Input
             config = param;
             data = new OutputData() { Buttons = new byte[10], Aime = new Aime() { Data = new byte[18] } };
             Reconnect();
-            new Thread(PollThread).Start();
         }
-        public override bool IsConnected => _openCount > 0;
+        public override bool IsConnected => _hid != null && _openCount > 0;
         public override OutputData Data => data;
 
         public override void Reconnect()
         {
-            if (reconnecting || _disposedValue) return;
+            if (reconnecting || _disposedValue || _hid == null) return;
             reconnecting = true;
             if (IsConnected)
                 _hid.Close();
 
             _openCount = _hid.Open(1, config.Vid, config.Pid, config.UsagePage, config.Usage);
             reconnecting = false;
+            if(_openCount > 0)
+            {
+                new Thread(PollThread).Start();
+            }
         }
 
         public static int[] bitPosMap =
@@ -46,15 +49,22 @@ namespace MU3Input
         {
             while (true)
             {
-                if(_disposedValue) return;
+                if(_disposedValue) break;
+                if(_hid == null) break;
                 if (!IsConnected) continue;
 
-                var len = _hid.Receive(0, ref _inBuffer, 64, 1000);
+                var len = 0;
+                try
+                {
+                    len = _hid.Receive(0, ref _inBuffer, 64, 1000);
+                }
+                catch (Exception e)
+                {
+                    len = -1;
+                }
                 if (len < 0)
                 {
-                    _openCount = 0;
-                    _hid.Close();
-                    continue;
+                    break;
                 }
 
                 OutputData temp = new OutputData();
@@ -89,21 +99,22 @@ namespace MU3Input
                 }
                 data = temp;
             }
+            _openCount = 0;
         }
 
-        public unsafe override void SetLed(uint data)
+        public unsafe override void SetLed(byte[] data)
         {
-            if (!IsConnected)
+#warning HID的固件需要更改
+            if (!IsConnected || _disposedValue || _hid == null)
                 return;
 
             SetLedInput led;
             led.Type = 0;
             led.LedBrightness = 40;
 
-            for (var i = 0; i < 9; i++)
+            for (var i = 0; i < 18; i++)
             {
-                led.LedColors[i] = (byte)(((data >> bitPosMap[i]) & 1) * 255);
-                led.LedColors[i + 15] = (byte)(((data >> bitPosMap[i + 9]) & 1) * 255);
+                led.LedColors[i] = data[i];
             }
 
             var outBuffer = new byte[64];
@@ -117,7 +128,8 @@ namespace MU3Input
         {
             _disposedValue = true;
             _openCount = 0;
-            _hid.Close();
+            _hid?.Close();
+            _hid = null;
         }
     }
     public class HidIOConfig

@@ -80,11 +80,24 @@ namespace MU3Input
         }
 
 #if RELEASE
-        [UnmanagedCallersOnly(EntryPoint = "mu3_io_set_led", CallConvs = [typeof(CallConvCdecl)])]
+        [UnmanagedCallersOnly(EntryPoint = "mu3_io_led_init", CallConvs = [typeof(CallConvCdecl)])]
 #endif
-        public static void SetLed(uint data)
+        public static unsafe uint LedInit()
         {
-            IO.SetLed(data);
+            return 0;
+        }
+
+#if RELEASE
+        [UnmanagedCallersOnly(EntryPoint = "mu3_io_led_set_colors", CallConvs = [typeof(CallConvCdecl)])]
+#endif
+        public static unsafe void SetLed(byte board, byte* data)
+        {
+            if(board == 1)
+            {
+                byte[] buffer = new byte[18];
+                Marshal.Copy((IntPtr)data, buffer, 0, 18);
+                IO.SetLed(buffer);
+            }
         }
 
 #if RELEASE

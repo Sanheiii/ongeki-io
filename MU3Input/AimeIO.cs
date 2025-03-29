@@ -12,7 +12,7 @@ namespace MU3Input
 #if RELEASE
         [UnmanagedCallersOnly(EntryPoint = "aime_io_get_api_version", CallConvs = [typeof(CallConvCdecl)])]
 #endif
-        public static ushort GetVersion() => 0x0200;
+        public static ushort GetVersion() => 0x0100;
 
 #if RELEASE
         [UnmanagedCallersOnly(EntryPoint = "aime_io_init", CallConvs = [typeof(CallConvCdecl)])]
