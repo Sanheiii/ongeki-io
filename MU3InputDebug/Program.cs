@@ -4,8 +4,10 @@ namespace MU3InputDebug
 {
     internal class Program
     {
+        static byte[] ledData = new byte[18];
         static void Main(string[] args)
         {
+            ledData[0] = 255;
             Mu3IO.Init();
             AimeIO.Init();
             while (true)
@@ -24,6 +26,10 @@ namespace MU3InputDebug
             Mu3IO.GetGameButtons(&left, &right);
             Mu3IO.GetOpButtons(&opButton);
             Mu3IO.GetLever(&lever);
+            fixed (byte* data = &ledData[0])
+            {
+                Mu3IO.SetLed(1, data);
+            }
         }
     }
 }

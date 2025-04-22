@@ -33,7 +33,7 @@ namespace MU3Input
 
             _openCount = _hid.Open(1, config.Vid, config.Pid, config.UsagePage, config.Usage);
             reconnecting = false;
-            if(_openCount > 0)
+            if (_openCount > 0)
             {
                 new Thread(PollThread).Start();
             }
@@ -49,8 +49,8 @@ namespace MU3Input
         {
             while (true)
             {
-                if(_disposedValue) break;
-                if(_hid == null) break;
+                if (_disposedValue) break;
+                if (_hid == null) break;
                 if (!IsConnected) continue;
 
                 var len = 0;
@@ -104,7 +104,6 @@ namespace MU3Input
 
         public unsafe override void SetLed(byte[] data)
         {
-#warning HID的固件需要更改
             if (!IsConnected || _disposedValue || _hid == null)
                 return;
 
@@ -112,9 +111,10 @@ namespace MU3Input
             led.Type = 0;
             led.LedBrightness = 40;
 
-            for (var i = 0; i < 18; i++)
+            for (var i = 0; i < 9; i++)
             {
                 led.LedColors[i] = data[i];
+                led.LedColors[i + 15] = data[i + 9];
             }
 
             var outBuffer = new byte[64];
